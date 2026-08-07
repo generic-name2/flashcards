@@ -24,20 +24,24 @@ function showRandomCard() {
 
     currentCard = cards[randomIndex];
 
+    // Question word
     document.getElementById("word").textContent =
         currentCard.word;
 
+    // Question sentence
     document.getElementById("sentence").textContent =
         currentCard.sentence;
 
+    // Answer word
     document.getElementById("answer").textContent =
         currentCard.translation;
 
+    // Answer sentence
     document.getElementById("sentenceTranslation").textContent =
         currentCard.sentence_translation;
 
 
-    // Reset state
+    // Reset switches
     sentenceVisible = false;
     answerVisible = false;
 
@@ -45,44 +49,48 @@ function showRandomCard() {
 }
 
 
-// Update everything that is visible
+// Decide what should be visible
 function updateDisplay() {
 
     const sentence =
         document.getElementById("sentence");
 
-    const sentenceTranslation =
-        document.getElementById("sentenceTranslation");
-
     const answer =
         document.getElementById("answer");
 
+    const sentenceTranslation =
+        document.getElementById("sentenceTranslation");
 
-    // Sentences depend on Show Sentence
+
+    // QS
+    // Question sentence is visible only when SS is ON
     if (sentenceVisible) {
-
         sentence.classList.remove("hidden");
-        sentenceTranslation.classList.remove("hidden");
-
     } else {
-
         sentence.classList.add("hidden");
-        sentenceTranslation.classList.add("hidden");
     }
 
 
-    // Word translation depends only on Show Answer
+    // AW
+    // Answer word is visible only when SA is ON
     if (answerVisible) {
-
         answer.classList.remove("hidden");
-
     } else {
-
         answer.classList.add("hidden");
     }
 
 
-    // Update button text
+    // AS
+    // Answer sentence is visible ONLY when
+    // BOTH SS and SA are ON
+    if (sentenceVisible && answerVisible) {
+        sentenceTranslation.classList.remove("hidden");
+    } else {
+        sentenceTranslation.classList.add("hidden");
+    }
+
+
+    // Update button labels
     document.getElementById("sentenceButton").textContent =
         sentenceVisible ? "Hide Sentence" : "Show Sentence";
 
@@ -91,7 +99,7 @@ function updateDisplay() {
 }
 
 
-// Show / hide BOTH sentences
+// SS button
 document.getElementById("sentenceButton")
     .addEventListener("click", function () {
 
@@ -101,7 +109,7 @@ document.getElementById("sentenceButton")
     });
 
 
-// Show / hide word translation
+// SA button
 document.getElementById("answerButton")
     .addEventListener("click", function () {
 
