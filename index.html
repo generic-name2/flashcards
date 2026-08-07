@@ -1,8 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>My Flashcards</title>
 
     <link rel="stylesheet" href="style.css">
@@ -16,16 +18,24 @@
 
         <div class="card">
 
-            <div class="word">
-                coffee shop
+            <div id="word" class="word">
+                Loading...
             </div>
+
+            <button id="sentenceButton">
+                Show Sentence
+            </button>
+
+            <div id="sentence" class="sentence hidden"></div>
 
             <button id="answerButton">
                 Show Answer
             </button>
 
-            <div id="answer" class="answer hidden">
-                cafetería
+            <div id="answer" class="answer hidden"></div>
+
+            <div id="sentenceTranslation"
+                 class="sentence-translation hidden">
             </div>
 
         </div>
@@ -35,4 +45,5 @@
     <script src="script.js"></script>
 
 </body>
+
 </html>
