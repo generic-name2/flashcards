@@ -1,0 +1,36 @@
+[
+    {
+        "id": 1,
+        "word": "coffee shop",
+        "translation": "cafetería",
+        "sentence": "I studied at the coffee shop yesterday.",
+        "sentence_translation": "Ayer estudié en la cafetería.",
+        "tags": [
+            "places",
+            "food",
+            "common"
+        ]
+    },
+    {
+        "id": 2,
+        "word": "family",
+        "translation": "familia",
+        "sentence": "My family lives in Peru.",
+        "sentence_translation": "Mi familia vive en Perú.",
+        "tags": [
+            "family",
+            "common"
+        ]
+    },
+    {
+        "id": 3,
+        "word": "hand",
+        "translation": "mano",
+        "sentence": "My hand hurts.",
+        "sentence_translation": "Me duele la mano.",
+        "tags": [
+            "body",
+            "common"
+        ]
+    }
+]
