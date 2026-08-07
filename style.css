@@ -44,3 +44,15 @@ button {
 .hidden {
     display: none;
 }
+
+.sentence {
+    font-size: 22px;
+    margin-top: 25px;
+    margin-bottom: 25px;
+}
+
+.sentence-translation {
+    font-size: 22px;
+    font-style: italic;
+    margin-top: 20px;
+}
