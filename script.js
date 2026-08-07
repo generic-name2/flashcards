@@ -1,6 +1,9 @@
 let cards = [];
 let currentCard = null;
 
+let sentenceVisible = false;
+let answerVisible = false;
+
 
 // Load the cards from cards.json
 async function loadCards() {
@@ -33,70 +36,78 @@ function showRandomCard() {
     document.getElementById("sentenceTranslation").textContent =
         currentCard.sentence_translation;
 
-    // Hide everything except the word
-    document.getElementById("sentence")
-        .classList.add("hidden");
 
-    document.getElementById("answer")
-        .classList.add("hidden");
+    // Reset state
+    sentenceVisible = false;
+    answerVisible = false;
 
-    document.getElementById("sentenceTranslation")
-        .classList.add("hidden");
-
-    document.getElementById("sentenceButton").textContent =
-        "Show Sentence";
-
-    document.getElementById("answerButton").textContent =
-        "Show Answer";
+    updateDisplay();
 }
 
 
-// Show / hide sentence
+// Update everything that is visible
+function updateDisplay() {
+
+    const sentence =
+        document.getElementById("sentence");
+
+    const sentenceTranslation =
+        document.getElementById("sentenceTranslation");
+
+    const answer =
+        document.getElementById("answer");
+
+
+    // Sentences depend on Show Sentence
+    if (sentenceVisible) {
+
+        sentence.classList.remove("hidden");
+        sentenceTranslation.classList.remove("hidden");
+
+    } else {
+
+        sentence.classList.add("hidden");
+        sentenceTranslation.classList.add("hidden");
+    }
+
+
+    // Word translation depends only on Show Answer
+    if (answerVisible) {
+
+        answer.classList.remove("hidden");
+
+    } else {
+
+        answer.classList.add("hidden");
+    }
+
+
+    // Update button text
+    document.getElementById("sentenceButton").textContent =
+        sentenceVisible ? "Hide Sentence" : "Show Sentence";
+
+    document.getElementById("answerButton").textContent =
+        answerVisible ? "Hide Answer" : "Show Answer";
+}
+
+
+// Show / hide BOTH sentences
 document.getElementById("sentenceButton")
     .addEventListener("click", function () {
 
-        const sentence =
-            document.getElementById("sentence");
+        sentenceVisible = !sentenceVisible;
 
-        const translation =
-            document.getElementById("sentenceTranslation");
-
-        sentence.classList.toggle("hidden");
-
-        if (sentence.classList.contains("hidden")) {
-
-            this.textContent = "Show Sentence";
-
-            translation.classList.add("hidden");
-
-        } else {
-
-            this.textContent = "Hide Sentence";
-        }
+        updateDisplay();
     });
 
 
-// Show / hide answer
+// Show / hide word translation
 document.getElementById("answerButton")
     .addEventListener("click", function () {
 
-        document.getElementById("answer")
-            .classList.toggle("hidden");
+        answerVisible = !answerVisible;
 
-        document.getElementById("sentenceTranslation")
-            .classList.toggle("hidden");
-
-        if (
-            document.getElementById("answer")
-                .classList.contains("hidden")
-        ) {
-
-            this.textContent = "Show Answer";
-
-        } else {
-
-            this.textContent = "Hide Answer";
-        }
+        updateDisplay();
     });
 
 
