@@ -56,3 +56,12 @@ button {
     font-style: italic;
     margin-top: 20px;
 }
+
+.version {
+    position: fixed;
+    top: 8px;
+    right: 10px;
+
+    font-size: 12px;
+    opacity: 0.5;
+}
