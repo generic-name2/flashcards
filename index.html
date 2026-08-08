@@ -2,47 +2,97 @@
 <html lang="en">
 
 <head>
+
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
 
     <title>My Flashcards</title>
 
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet"
+          href="style.css">
+
 </head>
 
+
 <body>
-    
-    <div class="version">v0.1.0</div>
+
+    <div class="version">
+        v0.2.0
+    </div>
+
 
     <main class="container">
 
         <h1>My Flashcards</h1>
 
+
         <div class="card">
 
-            <div id="word" class="word">
+            <!-- Question word -->
+            <div id="word"
+                 class="word">
                 Loading...
             </div>
 
+
+            <!-- Question sentence -->
+            <div id="sentence"
+                 class="sentence hidden">
+            </div>
+
+
+            <!-- Answer word -->
+            <div id="answer"
+                 class="answer hidden">
+            </div>
+
+
+            <!-- Answer sentence -->
+            <div id="sentenceTranslation"
+                 class="sentence-translation hidden">
+            </div>
+
+
+            <!-- Sentence button -->
             <button id="sentenceButton">
                 Show Sentence
             </button>
 
-            <div id="sentence" class="sentence hidden"></div>
 
+            <!-- Answer button -->
             <button id="answerButton">
                 Show Answer
             </button>
 
-            <div id="answer" class="answer hidden"></div>
 
-            <div id="sentenceTranslation"
-                 class="sentence-translation hidden">
+            <!-- Review buttons -->
+            <div id="reviewButtons"
+                 class="review-buttons hidden">
+
+                <button id="mistakeButton">
+                    ❌ Mistake
+                </button>
+
+                <button id="hardButton">
+                    😕 Hard
+                </button>
+
+                <button id="goodButton">
+                    🙂 Good
+                </button>
+
+                <button id="easyButton">
+                    😄 Easy
+                </button>
+
             </div>
 
         </div>
 
     </main>
+
 
     <script src="script.js"></script>
 
