@@ -107,6 +107,8 @@ function showRandomCard() {
 
     updateDisplay();
 
+    updateProgressDisplay();
+
 
     // Hide review buttons
 
@@ -247,6 +249,161 @@ document.getElementById(
 
 
 // ========================================
+// FORMAT INTERVAL
+// ========================================
+
+function formatInterval(milliseconds) {
+
+    const minutes =
+        Math.round(
+            milliseconds / 60000
+        );
+
+
+    if (minutes < 60) {
+
+        return minutes + " minute(s)";
+    }
+
+
+    const hours =
+        Math.round(minutes / 60);
+
+
+    if (hours < 24) {
+
+        return hours + " hour(s)";
+    }
+
+
+    const days =
+        Math.round(hours / 24);
+
+
+    return days + " day(s)";
+}
+
+
+// ========================================
+// FORMAT DATE
+// ========================================
+
+function formatDate(timestamp) {
+
+    if (!timestamp) {
+
+        return "Not scheduled";
+    }
+
+
+    const date =
+        new Date(timestamp);
+
+
+    return date.toLocaleString();
+}
+
+
+// ========================================
+// UPDATE PROGRESS DISPLAY
+// ========================================
+
+function updateProgressDisplay() {
+
+    const progress =
+        getProgress();
+
+
+    const id =
+        currentCard.id;
+
+
+    const cardProgress =
+        progress[id];
+
+
+    const progressInfo =
+        document.getElementById(
+            "progressInfo"
+        );
+
+
+    const debugInfo =
+        document.getElementById(
+            "debugInfo"
+        );
+
+
+    // ------------------------------------
+    // New card
+    // ------------------------------------
+
+    if (!cardProgress) {
+
+        progressInfo.innerHTML =
+            "New card";
+
+        debugInfo.innerHTML =
+
+            "Card ID: " +
+            id +
+            "<br>" +
+
+            "Reviews: 0<br>" +
+
+            "Last answer: None<br>" +
+
+            "Interval: 0 minutes<br>" +
+
+            "Next review: Not scheduled";
+
+        return;
+    }
+
+
+    // ------------------------------------
+    // Existing card
+    // ------------------------------------
+
+    progressInfo.innerHTML =
+
+        "Last answer: <strong>" +
+        cardProgress.lastAnswer +
+        "</strong><br>" +
+
+        "Next review: <strong>" +
+        formatDate(cardProgress.due) +
+        "</strong>";
+
+
+    debugInfo.innerHTML =
+
+        "Card ID: " +
+        id +
+        "<br>" +
+
+        "Reviews: " +
+        cardProgress.repetitions +
+        "<br>" +
+
+        "Last answer: " +
+        cardProgress.lastAnswer +
+        "<br>" +
+
+        "Interval: " +
+        formatInterval(
+            cardProgress.interval
+        ) +
+        "<br>" +
+
+        "Next review: " +
+        formatDate(
+            cardProgress.due
+        );
+}
+
+
+// ========================================
 // REVIEW A CARD
 // ========================================
 
@@ -288,7 +445,8 @@ function reviewCard(choice) {
 
     if (choice === "mistake") {
 
-        cardProgress.interval = 0;
+        cardProgress.interval =
+            0;
 
     }
 
@@ -336,7 +494,8 @@ function reviewCard(choice) {
 
 
     cardProgress.due =
-        now + cardProgress.interval;
+        now +
+        cardProgress.interval;
 
 
     // Save everything
