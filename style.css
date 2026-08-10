@@ -109,6 +109,43 @@ button {
 }
 
 
+/* Progress information */
+
+.progress-info {
+    margin-top: 25px;
+
+    font-size: 15px;
+
+    line-height: 1.6;
+}
+
+
+/* Developer panel */
+
+.debug-panel {
+    margin-top: 25px;
+
+    padding: 15px;
+
+    background: #e5e5ea;
+
+    border-radius: 12px;
+
+    text-align: left;
+
+    font-size: 13px;
+
+    line-height: 1.6;
+}
+
+
+.debug-title {
+    font-weight: bold;
+
+    margin-bottom: 8px;
+}
+
+
 /* Hide elements */
 
 .hidden {
