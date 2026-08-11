@@ -19,7 +19,7 @@ async function loadCards() {
     cards =
         await response.json();
 
-    showRandomCard();
+    showNextCard();
 }
 
 
@@ -56,18 +56,89 @@ function saveProgress(progress) {
 
 
 // ========================================
-// SHOW RANDOM CARD
+// FIND AVAILABLE CARDS
 // ========================================
 
-function showRandomCard() {
+function getAvailableCards() {
 
-    const randomIndex =
-        Math.floor(
-            Math.random() * cards.length
-        );
+    const progress =
+        getProgress();
+
+    const now =
+        Date.now();
+
+
+    return cards.filter(function(card) {
+
+        const cardProgress =
+            progress[card.id];
+
+
+        // Never reviewed = new card
+        if (!cardProgress) {
+
+            return true;
+        }
+
+
+        // Reviewed card:
+        // available only when due
+
+        return cardProgress.due <= now;
+
+    });
+}
+
+
+// ========================================
+// FIND NEXT CARD
+// ========================================
+
+function showNextCard() {
+
+    const availableCards =
+        getAvailableCards();
+
+
+    // ------------------------------------
+    // Cards are available
+    // ------------------------------------
+
+    if (availableCards.length > 0) {
+
+        const randomIndex =
+            Math.floor(
+                Math.random() *
+                availableCards.length
+            );
+
+
+        const selectedCard =
+            availableCards[randomIndex];
+
+
+        displayCard(selectedCard);
+
+        return;
+    }
+
+
+    // ------------------------------------
+    // Nothing is available right now
+    // ------------------------------------
+
+    showNothingDue();
+}
+
+
+// ========================================
+// DISPLAY A CARD
+// ========================================
+
+function displayCard(card) {
 
     currentCard =
-        cards[randomIndex];
+        card;
 
 
     // Question word
@@ -93,8 +164,9 @@ function showRandomCard() {
 
     // Answer sentence
 
-    document.getElementById("sentenceTranslation")
-        .textContent =
+    document.getElementById(
+        "sentenceTranslation"
+    ).textContent =
         currentCard.sentence_translation;
 
 
@@ -112,8 +184,72 @@ function showRandomCard() {
 
     // Hide review buttons
 
-    document.getElementById("reviewButtons")
-        .classList.add("hidden");
+    document.getElementById(
+        "reviewButtons"
+    ).classList.add("hidden");
+}
+
+
+// ========================================
+// NOTHING DUE
+// ========================================
+
+function showNothingDue() {
+
+    currentCard = null;
+
+
+    document.getElementById("word")
+        .textContent =
+        "Nothing due right now";
+
+
+    document.getElementById("sentence")
+        .textContent =
+        "";
+
+
+    document.getElementById("answer")
+        .textContent =
+        "";
+
+
+    document.getElementById(
+        "sentenceTranslation"
+    ).textContent =
+        "";
+
+
+    document.getElementById(
+        "sentence"
+    ).classList.add("hidden");
+
+
+    document.getElementById(
+        "answer"
+    ).classList.add("hidden");
+
+
+    document.getElementById(
+        "sentenceTranslation"
+    ).classList.add("hidden");
+
+
+    document.getElementById(
+        "reviewButtons"
+    ).classList.add("hidden");
+
+
+    document.getElementById(
+        "progressInfo"
+    ).innerHTML =
+        "No cards are due right now.";
+
+
+    document.getElementById(
+        "debugInfo"
+    ).innerHTML =
+        "The scheduler is waiting for the next due card.";
 }
 
 
@@ -135,7 +271,9 @@ function updateDisplay() {
         );
 
 
+    // ------------------------------------
     // Question sentence
+    // ------------------------------------
 
     if (sentenceVisible) {
 
@@ -147,7 +285,9 @@ function updateDisplay() {
     }
 
 
+    // ------------------------------------
     // Answer word
+    // ------------------------------------
 
     if (answerVisible) {
 
@@ -159,7 +299,9 @@ function updateDisplay() {
     }
 
 
+    // ------------------------------------
     // Answer sentence
+    // ------------------------------------
 
     if (
         sentenceVisible &&
@@ -176,7 +318,9 @@ function updateDisplay() {
     }
 
 
+    // ------------------------------------
     // Button labels
+    // ------------------------------------
 
     document.getElementById(
         "sentenceButton"
@@ -194,10 +338,11 @@ function updateDisplay() {
             : "Show Answer";
 
 
-    // Review buttons appear
-    // when answer is visible
+    // ------------------------------------
+    // Review buttons
+    // ------------------------------------
 
-    if (answerVisible) {
+    if (answerVisible && currentCard) {
 
         document.getElementById(
             "reviewButtons"
@@ -222,8 +367,14 @@ document.getElementById(
     "click",
     function () {
 
+        if (!currentCard) {
+            return;
+        }
+
+
         sentenceVisible =
             !sentenceVisible;
+
 
         updateDisplay();
     }
@@ -240,8 +391,14 @@ document.getElementById(
     "click",
     function () {
 
+        if (!currentCard) {
+            return;
+        }
+
+
         answerVisible =
             !answerVisible;
+
 
         updateDisplay();
     }
@@ -262,25 +419,32 @@ function formatInterval(milliseconds) {
 
     if (minutes < 60) {
 
-        return minutes + " minute(s)";
+        return minutes +
+            " minute(s)";
     }
 
 
     const hours =
-        Math.round(minutes / 60);
+        Math.round(
+            minutes / 60
+        );
 
 
     if (hours < 24) {
 
-        return hours + " hour(s)";
+        return hours +
+            " hour(s)";
     }
 
 
     const days =
-        Math.round(hours / 24);
+        Math.round(
+            hours / 24
+        );
 
 
-    return days + " day(s)";
+    return days +
+        " day(s)";
 }
 
 
@@ -314,14 +478,6 @@ function updateProgressDisplay() {
         getProgress();
 
 
-    const id =
-        currentCard.id;
-
-
-    const cardProgress =
-        progress[id];
-
-
     const progressInfo =
         document.getElementById(
             "progressInfo"
@@ -334,6 +490,22 @@ function updateProgressDisplay() {
         );
 
 
+    // No current card
+
+    if (!currentCard) {
+
+        return;
+    }
+
+
+    const id =
+        currentCard.id;
+
+
+    const cardProgress =
+        progress[id];
+
+
     // ------------------------------------
     // New card
     // ------------------------------------
@@ -342,6 +514,7 @@ function updateProgressDisplay() {
 
         progressInfo.innerHTML =
             "New card";
+
 
         debugInfo.innerHTML =
 
@@ -356,6 +529,7 @@ function updateProgressDisplay() {
             "Interval: 0 minutes<br>" +
 
             "Next review: Not scheduled";
+
 
         return;
     }
@@ -372,7 +546,9 @@ function updateProgressDisplay() {
         "</strong><br>" +
 
         "Next review: <strong>" +
-        formatDate(cardProgress.due) +
+        formatDate(
+            cardProgress.due
+        ) +
         "</strong>";
 
 
@@ -409,6 +585,12 @@ function updateProgressDisplay() {
 
 function reviewCard(choice) {
 
+    if (!currentCard) {
+
+        return;
+    }
+
+
     const progress =
         getProgress();
 
@@ -417,8 +599,9 @@ function reviewCard(choice) {
         currentCard.id;
 
 
+    // ------------------------------------
     // Create progress record
-    // if this is the first review
+    // ------------------------------------
 
     if (!progress[id]) {
 
@@ -439,15 +622,14 @@ function reviewCard(choice) {
         progress[id];
 
 
-    // ====================================
-    // CHOOSE INTERVAL
-    // ====================================
+    // ------------------------------------
+    // Choose interval
+    // ------------------------------------
 
     if (choice === "mistake") {
 
         cardProgress.interval =
             0;
-
     }
 
 
@@ -455,7 +637,6 @@ function reviewCard(choice) {
 
         cardProgress.interval =
             30 * 60 * 1000;
-
     }
 
 
@@ -463,7 +644,6 @@ function reviewCard(choice) {
 
         cardProgress.interval =
             24 * 60 * 60 * 1000;
-
     }
 
 
@@ -471,13 +651,12 @@ function reviewCard(choice) {
 
         cardProgress.interval =
             7 * 24 * 60 * 60 * 1000;
-
     }
 
 
-    // ====================================
-    // UPDATE HISTORY
-    // ====================================
+    // ------------------------------------
+    // Update history
+    // ------------------------------------
 
     cardProgress.repetitions += 1;
 
@@ -485,29 +664,27 @@ function reviewCard(choice) {
         choice;
 
 
-    // ====================================
-    // CALCULATE DUE DATE
-    // ====================================
-
-    const now =
-        Date.now();
-
+    // ------------------------------------
+    // Calculate due date
+    // ------------------------------------
 
     cardProgress.due =
-        now +
+        Date.now() +
         cardProgress.interval;
 
 
-    // Save everything
+    // ------------------------------------
+    // Save
+    // ------------------------------------
 
     saveProgress(progress);
 
 
-    // ====================================
-    // SHOW NEXT CARD
-    // ====================================
+    // ------------------------------------
+    // Find another card
+    // ------------------------------------
 
-    showRandomCard();
+    showNextCard();
 }
 
 
@@ -522,7 +699,6 @@ document.getElementById(
     function () {
 
         reviewCard("mistake");
-
     }
 );
 
@@ -534,7 +710,6 @@ document.getElementById(
     function () {
 
         reviewCard("hard");
-
     }
 );
 
@@ -546,7 +721,6 @@ document.getElementById(
     function () {
 
         reviewCard("good");
-
     }
 );
 
@@ -558,7 +732,6 @@ document.getElementById(
     function () {
 
         reviewCard("easy");
-
     }
 );
 
