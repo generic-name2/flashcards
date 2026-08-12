@@ -25,13 +25,84 @@ async function loadCards() {
     const response =
         await fetch("cards.json");
 
-    cards =
+
+    const defaultCards =
         await response.json();
+
+
+    const savedCards =
+        localStorage.getItem(
+            "flashcardCards"
+        );
+
+
+    if (savedCards) {
+
+        cards =
+            JSON.parse(savedCards);
+
+    } else {
+
+        cards =
+            defaultCards;
+
+    }
 
 
     createTagButtons();
 
     showNextCard();
+}
+
+
+// ========================================
+// SAVE CARDS
+// ========================================
+
+function saveCards() {
+
+    localStorage.setItem(
+        "flashcardCards",
+
+        JSON.stringify(cards)
+    );
+}
+
+
+// ========================================
+// GET PROGRESS
+// ========================================
+
+function getProgress() {
+
+    const saved =
+        localStorage.getItem(
+            "flashcardProgress"
+        );
+
+
+    if (saved) {
+
+        return JSON.parse(saved);
+
+    }
+
+
+    return {};
+}
+
+
+// ========================================
+// SAVE PROGRESS
+// ========================================
+
+function saveProgress(progress) {
+
+    localStorage.setItem(
+        "flashcardProgress",
+
+        JSON.stringify(progress)
+    );
 }
 
 
@@ -48,6 +119,7 @@ function getAllTags() {
     cards.forEach(function(card) {
 
         if (!card.tags) {
+
             return;
         }
 
@@ -61,7 +133,9 @@ function getAllTags() {
     });
 
 
-    return Array.from(tagSet).sort();
+    return Array.from(
+        tagSet
+    ).sort();
 }
 
 
@@ -80,10 +154,10 @@ function createTagButtons() {
     container.innerHTML = "";
 
 
-    // All button
-
     const allButton =
-        document.createElement("button");
+        document.createElement(
+            "button"
+        );
 
 
     allButton.textContent =
@@ -116,8 +190,6 @@ function createTagButtons() {
         allButton
     );
 
-
-    // Individual tags
 
     const tags =
         getAllTags();
@@ -177,7 +249,10 @@ function toggleTag(tag) {
 
     } else {
 
-        selectedTags.splice(index, 1);
+        selectedTags.splice(
+            index,
+            1
+        );
 
     }
 
@@ -200,9 +275,9 @@ function updateTagButtons() {
         );
 
 
-    // No tags selected = All
-
-    if (selectedTags.length === 0) {
+    if (
+        selectedTags.length === 0
+    ) {
 
         allButton.classList.add(
             "selected"
@@ -215,8 +290,6 @@ function updateTagButtons() {
         );
     }
 
-
-    // Individual tags
 
     document
         .querySelectorAll(".tag-button")
@@ -247,14 +320,14 @@ function updateTagButtons() {
 
 
 // ========================================
-// FILTER CARDS BY TAG
+// CARD TAG MATCHING
 // ========================================
 
 function cardMatchesTags(card) {
 
-    // No filter
-
-    if (selectedTags.length === 0) {
+    if (
+        selectedTags.length === 0
+    ) {
 
         return true;
     }
@@ -263,9 +336,6 @@ function cardMatchesTags(card) {
     const cardTags =
         card.tags || [];
 
-
-    // OR mode:
-    // card needs at least one tag
 
     if (filterMode === "OR") {
 
@@ -281,9 +351,6 @@ function cardMatchesTags(card) {
     }
 
 
-    // AND mode:
-    // card needs every tag
-
     return selectedTags.every(
         function(tag) {
 
@@ -297,44 +364,7 @@ function cardMatchesTags(card) {
 
 
 // ========================================
-// GET PROGRESS
-// ========================================
-
-function getProgress() {
-
-    const saved =
-        localStorage.getItem(
-            "flashcardProgress"
-        );
-
-
-    if (saved) {
-
-        return JSON.parse(saved);
-
-    }
-
-
-    return {};
-}
-
-
-// ========================================
-// SAVE PROGRESS
-// ========================================
-
-function saveProgress(progress) {
-
-    localStorage.setItem(
-        "flashcardProgress",
-
-        JSON.stringify(progress)
-    );
-}
-
-
-// ========================================
-// FIND AVAILABLE CARDS
+// AVAILABLE CARDS
 // ========================================
 
 function getAvailableCards() {
@@ -350,10 +380,9 @@ function getAvailableCards() {
     return cards.filter(
         function(card) {
 
-
-            // First apply tag filter
-
-            if (!cardMatchesTags(card)) {
+            if (
+                !cardMatchesTags(card)
+            ) {
 
                 return false;
             }
@@ -363,15 +392,11 @@ function getAvailableCards() {
                 progress[card.id];
 
 
-            // New card
-
             if (!cardProgress) {
 
                 return true;
             }
 
-
-            // Reviewed card
 
             return (
                 cardProgress.due <= now
@@ -383,7 +408,7 @@ function getAvailableCards() {
 
 
 // ========================================
-// COUNT NEW CARDS
+// NEW CARDS
 // ========================================
 
 function getNewCards() {
@@ -406,7 +431,7 @@ function getNewCards() {
 
 
 // ========================================
-// COUNT DUE CARDS
+// DUE CARDS
 // ========================================
 
 function getDueCards() {
@@ -495,18 +520,21 @@ function displayCard(card) {
         card;
 
 
-    document.getElementById("word")
-        .textContent =
+    document.getElementById(
+        "word"
+    ).textContent =
         currentCard.word;
 
 
-    document.getElementById("sentence")
-        .textContent =
+    document.getElementById(
+        "sentence"
+    ).textContent =
         currentCard.sentence;
 
 
-    document.getElementById("answer")
-        .textContent =
+    document.getElementById(
+        "answer"
+    ).textContent =
         currentCard.translation;
 
 
@@ -528,7 +556,9 @@ function displayCard(card) {
 
     document.getElementById(
         "reviewButtons"
-    ).classList.add("hidden");
+    ).classList.add(
+        "hidden"
+    );
 }
 
 
@@ -541,18 +571,21 @@ function showNothingDue() {
     currentCard = null;
 
 
-    document.getElementById("word")
-        .textContent =
+    document.getElementById(
+        "word"
+    ).textContent =
         "Nothing due right now";
 
 
-    document.getElementById("sentence")
-        .textContent =
+    document.getElementById(
+        "sentence"
+    ).textContent =
         "";
 
 
-    document.getElementById("answer")
-        .textContent =
+    document.getElementById(
+        "answer"
+    ).textContent =
         "";
 
 
@@ -564,22 +597,30 @@ function showNothingDue() {
 
     document.getElementById(
         "sentence"
-    ).classList.add("hidden");
+    ).classList.add(
+        "hidden"
+    );
 
 
     document.getElementById(
         "answer"
-    ).classList.add("hidden");
+    ).classList.add(
+        "hidden"
+    );
 
 
     document.getElementById(
         "sentenceTranslation"
-    ).classList.add("hidden");
+    ).classList.add(
+        "hidden"
+    );
 
 
     document.getElementById(
         "reviewButtons"
-    ).classList.add("hidden");
+    ).classList.add(
+        "hidden"
+    );
 
 
     document.getElementById(
@@ -645,8 +686,10 @@ function updateStudyInfo() {
 
         "New: " +
         newCards.length +
+
         " · Due: " +
         dueCards.length +
+
         " · Available: " +
         availableCards.length;
 }
@@ -676,8 +719,6 @@ function updateDisplay() {
         );
 
 
-    // Question sentence
-
     if (sentenceVisible) {
 
         sentence.classList.remove(
@@ -692,8 +733,6 @@ function updateDisplay() {
     }
 
 
-    // Answer word
-
     if (answerVisible) {
 
         answer.classList.remove(
@@ -707,8 +746,6 @@ function updateDisplay() {
         );
     }
 
-
-    // Answer sentence
 
     if (
         sentenceVisible &&
@@ -729,8 +766,6 @@ function updateDisplay() {
     }
 
 
-    // Button labels
-
     document.getElementById(
         "sentenceButton"
     ).textContent =
@@ -748,8 +783,6 @@ function updateDisplay() {
             ? "Hide Answer"
             : "Show Answer";
 
-
-    // Review buttons
 
     if (
         answerVisible &&
@@ -774,128 +807,7 @@ function updateDisplay() {
 
 
 // ========================================
-// SENTENCE BUTTON
-// ========================================
-
-document.getElementById(
-    "sentenceButton"
-).addEventListener(
-    "click",
-    function() {
-
-        if (!currentCard) {
-
-            return;
-        }
-
-
-        sentenceVisible =
-            !sentenceVisible;
-
-
-        updateDisplay();
-    }
-);
-
-
-// ========================================
-// ANSWER BUTTON
-// ========================================
-
-document.getElementById(
-    "answerButton"
-).addEventListener(
-    "click",
-    function() {
-
-        if (!currentCard) {
-
-            return;
-        }
-
-
-        answerVisible =
-            !answerVisible;
-
-
-        updateDisplay();
-    }
-);
-
-
-// ========================================
-// FORMAT INTERVAL
-// ========================================
-
-function formatInterval(
-    milliseconds
-) {
-
-    const minutes =
-        Math.round(
-            milliseconds / 60000
-        );
-
-
-    if (minutes < 60) {
-
-        return (
-            minutes +
-            " minute(s)"
-        );
-    }
-
-
-    const hours =
-        Math.round(
-            minutes / 60
-        );
-
-
-    if (hours < 24) {
-
-        return (
-            hours +
-            " hour(s)"
-        );
-    }
-
-
-    const days =
-        Math.round(
-            hours / 24
-        );
-
-
-    return (
-        days +
-        " day(s)"
-    );
-}
-
-
-// ========================================
-// FORMAT DATE
-// ========================================
-
-function formatDate(timestamp) {
-
-    if (!timestamp) {
-
-        return "Not scheduled";
-    }
-
-
-    const date =
-        new Date(timestamp);
-
-
-    return date.toLocaleString();
-}
-
-
-// ========================================
-// UPDATE PROGRESS DISPLAY
+// PROGRESS DISPLAY
 // ========================================
 
 function updateProgressDisplay() {
@@ -940,13 +852,20 @@ function updateProgressDisplay() {
 
             "Card ID: " +
             id +
+
             "<br>" +
 
-            "Reviews: 0<br>" +
+            "Reviews: 0" +
 
-            "Last answer: None<br>" +
+            "<br>" +
 
-            "Interval: 0 minutes<br>" +
+            "Last answer: None" +
+
+            "<br>" +
+
+            "Interval: 0 minutes" +
+
+            "<br>" +
 
             "Next review: Not scheduled";
 
@@ -958,13 +877,17 @@ function updateProgressDisplay() {
     progressInfo.innerHTML =
 
         "Last answer: <strong>" +
+
         cardProgress.lastAnswer +
+
         "</strong><br>" +
 
         "Next review: <strong>" +
+
         formatDate(
             cardProgress.due
         ) +
+
         "</strong>";
 
 
@@ -972,23 +895,29 @@ function updateProgressDisplay() {
 
         "Card ID: " +
         id +
+
         "<br>" +
 
         "Reviews: " +
         cardProgress.repetitions +
+
         "<br>" +
 
         "Last answer: " +
         cardProgress.lastAnswer +
+
         "<br>" +
 
         "Interval: " +
+
         formatInterval(
             cardProgress.interval
         ) +
+
         "<br>" +
 
         "Next review: " +
+
         formatDate(
             cardProgress.due
         );
@@ -1094,6 +1023,127 @@ function reviewCard(choice) {
 
 
 // ========================================
+// FORMAT INTERVAL
+// ========================================
+
+function formatInterval(
+    milliseconds
+) {
+
+    const minutes =
+        Math.round(
+            milliseconds / 60000
+        );
+
+
+    if (minutes < 60) {
+
+        return (
+            minutes +
+            " minute(s)"
+        );
+    }
+
+
+    const hours =
+        Math.round(
+            minutes / 60
+        );
+
+
+    if (hours < 24) {
+
+        return (
+            hours +
+            " hour(s)"
+        );
+    }
+
+
+    const days =
+        Math.round(
+            hours / 24
+        );
+
+
+    return (
+        days +
+        " day(s)"
+    );
+}
+
+
+// ========================================
+// FORMAT DATE
+// ========================================
+
+function formatDate(timestamp) {
+
+    if (!timestamp) {
+
+        return "Not scheduled";
+    }
+
+
+    return new Date(
+        timestamp
+    ).toLocaleString();
+}
+
+
+// ========================================
+// SENTENCE BUTTON
+// ========================================
+
+document.getElementById(
+    "sentenceButton"
+).addEventListener(
+    "click",
+    function() {
+
+        if (!currentCard) {
+
+            return;
+        }
+
+
+        sentenceVisible =
+            !sentenceVisible;
+
+
+        updateDisplay();
+
+    }
+);
+
+
+// ========================================
+// ANSWER BUTTON
+// ========================================
+
+document.getElementById(
+    "answerButton"
+).addEventListener(
+    "click",
+    function() {
+
+        if (!currentCard) {
+
+            return;
+        }
+
+
+        answerVisible =
+            !answerVisible;
+
+
+        updateDisplay();
+
+    }
+);
+
+
+// ========================================
 // REVIEW BUTTONS
 // ========================================
 
@@ -1146,7 +1196,7 @@ document.getElementById(
 
 
 // ========================================
-// OR / AND MODE
+// OR / AND
 // ========================================
 
 document.getElementById(
@@ -1173,6 +1223,7 @@ document.getElementById(
 
 
         showNextCard();
+
     }
 );
 
@@ -1201,6 +1252,306 @@ document.getElementById(
 
 
         showNextCard();
+
+    }
+);
+
+
+// ========================================
+// DOWNLOAD FILE
+// ========================================
+
+function downloadJSON(
+    filename,
+    data
+) {
+
+    const json =
+        JSON.stringify(
+            data,
+            null,
+            2
+        );
+
+
+    const blob =
+        new Blob(
+            [json],
+            {
+                type:
+                    "application/json"
+            }
+        );
+
+
+    const url =
+        URL.createObjectURL(
+            blob
+        );
+
+
+    const link =
+        document.createElement(
+            "a"
+        );
+
+
+    link.href =
+        url;
+
+
+    link.download =
+        filename;
+
+
+    document.body.appendChild(
+        link
+    );
+
+
+    link.click();
+
+
+    document.body.removeChild(
+        link
+    );
+
+
+    URL.revokeObjectURL(
+        url
+    );
+}
+
+
+// ========================================
+// EXPORT CARDS
+// ========================================
+
+document.getElementById(
+    "exportCardsButton"
+).addEventListener(
+    "click",
+    function() {
+
+        downloadJSON(
+            "my_flashcards.json",
+            {
+                cards: cards
+            }
+        );
+
+    }
+);
+
+
+// ========================================
+// EXPORT PROGRESS
+// ========================================
+
+document.getElementById(
+    "exportProgressButton"
+).addEventListener(
+    "click",
+    function() {
+
+        downloadJSON(
+            "my_progress.json",
+            getProgress()
+        );
+
+    }
+);
+
+
+// ========================================
+// IMPORT CARDS
+// ========================================
+
+document.getElementById(
+    "importCardsButton"
+).addEventListener(
+    "click",
+    function() {
+
+        document.getElementById(
+            "cardsFileInput"
+        ).click();
+
+    }
+);
+
+
+document.getElementById(
+    "cardsFileInput"
+).addEventListener(
+    "change",
+    function(event) {
+
+        const file =
+            event.target.files[0];
+
+
+        if (!file) {
+
+            return;
+        }
+
+
+        const reader =
+            new FileReader();
+
+
+        reader.onload =
+            function(e) {
+
+                try {
+
+                    const data =
+                        JSON.parse(
+                            e.target.result
+                        );
+
+
+                    if (
+                        !data.cards ||
+                        !Array.isArray(
+                            data.cards
+                        )
+                    ) {
+
+                        alert(
+                            "Invalid flashcard file."
+                        );
+
+                        return;
+                    }
+
+
+                    cards =
+                        data.cards;
+
+
+                    saveCards();
+
+
+                    selectedTags = [];
+
+
+                    createTagButtons();
+
+                    showNextCard();
+
+
+                    alert(
+                        "Cards imported successfully."
+                    );
+
+
+                } catch (error) {
+
+                    alert(
+                        "Could not read the flashcard file."
+                    );
+
+                }
+
+            };
+
+
+        reader.readAsText(file);
+
+    }
+);
+
+
+// ========================================
+// IMPORT PROGRESS
+// ========================================
+
+document.getElementById(
+    "importProgressButton"
+).addEventListener(
+    "click",
+    function() {
+
+        document.getElementById(
+            "progressFileInput"
+        ).click();
+
+    }
+);
+
+
+document.getElementById(
+    "progressFileInput"
+).addEventListener(
+    "change",
+    function(event) {
+
+        const file =
+            event.target.files[0];
+
+
+        if (!file) {
+
+            return;
+        }
+
+
+        const reader =
+            new FileReader();
+
+
+        reader.onload =
+            function(e) {
+
+                try {
+
+                    const data =
+                        JSON.parse(
+                            e.target.result
+                        );
+
+
+                    if (
+                        typeof data !==
+                        "object"
+                    ) {
+
+                        alert(
+                            "Invalid progress file."
+                        );
+
+                        return;
+                    }
+
+
+                    saveProgress(
+                        data
+                    );
+
+
+                    showNextCard();
+
+
+                    alert(
+                        "Progress imported successfully."
+                    );
+
+
+                } catch (error) {
+
+                    alert(
+                        "Could not read the progress file."
+                    );
+
+                }
+
+            };
+
+
+        reader.readAsText(file);
+
     }
 );
 
