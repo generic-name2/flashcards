@@ -671,6 +671,7 @@ function updateProgressDisplay() {
             currentCard.id +
             "<br>Reviews: 0" +
             "<br>Last answer: None" +
+            "<br>Streak: 0" +
             "<br>Interval: 0 minutes" +
             "<br>Next review: Not scheduled";
 
@@ -683,6 +684,10 @@ function updateProgressDisplay() {
 
         "Last answer: <strong>" +
         p.lastAnswer +
+        "</strong><br>" +
+
+        "Streak: <strong>" +
+        p.streak +
         "</strong><br>" +
 
         "Next review: <strong>" +
@@ -701,11 +706,91 @@ function updateProgressDisplay() {
         "<br>Last answer: " +
         p.lastAnswer +
 
+        "<br>Current streak: " +
+        p.streak +
+
         "<br>Interval: " +
         formatInterval(p.interval) +
 
         "<br>Next review: " +
         formatDate(p.due);
+}
+
+
+// ========================================
+// NEW SRS
+// ========================================
+
+function calculateInterval(
+    answer,
+    streak
+) {
+
+    // MISTAKE
+    if (answer === "mistake") {
+
+        return 0;
+
+    }
+
+
+    // HARD
+    if (answer === "hard") {
+
+        const effectiveStreak =
+            Math.min(
+                streak,
+                10
+            );
+
+
+        return (
+            5 *
+            effectiveStreak *
+            60 *
+            1000
+        );
+
+    }
+
+
+    // GOOD
+    if (answer === "good") {
+
+        const effectiveStreak =
+            Math.min(
+                streak,
+                10
+            );
+
+
+        return (
+            effectiveStreak *
+            24 *
+            60 *
+            60 *
+            1000
+        );
+
+    }
+
+
+    // EASY
+    if (answer === "easy") {
+
+        return (
+            streak *
+            7 *
+            24 *
+            60 *
+            60 *
+            1000
+        );
+
+    }
+
+
+    return 0;
 }
 
 
@@ -738,9 +823,12 @@ function reviewCard(choice) {
 
             lastAnswer: null,
 
+            streak: 0,
+
             due: null
 
         };
+
     }
 
 
@@ -748,40 +836,34 @@ function reviewCard(choice) {
         progress[id];
 
 
-    if (choice === "mistake") {
+    // Same answer → increase streak.
+    // Different answer → restart at 1.
 
-        p.interval = 0;
+    if (
+        p.lastAnswer === choice
+    ) {
 
-    }
+        p.streak += 1;
 
+    } else {
 
-    if (choice === "hard") {
-
-        p.interval =
-            30 * 60 * 1000;
-
-    }
-
-
-    if (choice === "good") {
-
-        p.interval =
-            24 * 60 * 60 * 1000;
+        p.streak = 1;
 
     }
 
 
-    if (choice === "easy") {
-
-        p.interval =
-            7 * 24 * 60 * 60 * 1000;
-
-    }
+    p.interval =
+        calculateInterval(
+            choice,
+            p.streak
+        );
 
 
     p.repetitions += 1;
 
-    p.lastAnswer = choice;
+    p.lastAnswer =
+        choice;
+
 
     p.due =
         Date.now() +
@@ -789,6 +871,7 @@ function reviewCard(choice) {
 
 
     saveProgress(progress);
+
 
     showNextCard();
 }
@@ -801,30 +884,41 @@ function reviewCard(choice) {
 function formatInterval(ms) {
 
     const minutes =
-        Math.round(ms / 60000);
+        Math.round(
+            ms / 60000
+        );
 
 
     if (minutes < 60) {
 
-        return minutes +
-            " minute(s)";
+        return (
+            minutes +
+            " minute(s)"
+        );
     }
 
 
     const hours =
-        Math.round(minutes / 60);
+        Math.round(
+            minutes / 60
+        );
 
 
     if (hours < 24) {
 
-        return hours +
-            " hour(s)";
+        return (
+            hours +
+            " hour(s)"
+        );
     }
 
 
-    return Math.round(
-        hours / 24
-    ) + " day(s)";
+    return (
+        Math.round(
+            hours / 24
+        ) +
+        " day(s)"
+    );
 }
 
 
@@ -1369,8 +1463,6 @@ function deleteCard(id) {
 
     saveCards();
 
-
-    // Remove its review history too
 
     const progress =
         getProgress();
