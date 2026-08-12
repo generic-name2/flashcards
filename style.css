@@ -24,9 +24,11 @@ h1 {
 
 
 /* ============================= */
-/* FILTERS */
+/* PANELS */
 /* ============================= */
 
+.data-panel,
+.editor-panel,
 .filters {
     background: white;
 
@@ -41,12 +43,132 @@ h1 {
 }
 
 
-.filter-title {
+.panel-title {
     font-weight: bold;
 
-    margin-bottom: 10px;
+    margin-bottom: 12px;
 }
 
+
+/* ============================= */
+/* EDITOR */
+/* ============================= */
+
+.editor-panel {
+    text-align: left;
+}
+
+
+.editor-panel > button {
+    display: block;
+
+    margin: 0 auto;
+}
+
+
+.editor-panel label {
+    display: block;
+
+    font-weight: bold;
+
+    margin-top: 15px;
+
+    margin-bottom: 5px;
+}
+
+
+.editor-panel input,
+.editor-panel textarea {
+    box-sizing: border-box;
+
+    width: 100%;
+
+    padding: 12px;
+
+    font-size: 17px;
+
+    border: 1px solid #ccc;
+
+    border-radius: 10px;
+
+    font-family: inherit;
+}
+
+
+.editor-panel textarea {
+    min-height: 75px;
+
+    resize: vertical;
+}
+
+
+.editor-buttons {
+    text-align: center;
+
+    margin-top: 20px;
+}
+
+
+#editorMessage {
+    text-align: center;
+
+    margin-top: 10px;
+
+    font-size: 14px;
+}
+
+
+/* ============================= */
+/* CARD MANAGER */
+/* ============================= */
+
+#cardManager {
+    margin-top: 20px;
+}
+
+
+.manager-card {
+    background: #f2f2f7;
+
+    border-radius: 12px;
+
+    padding: 12px;
+
+    margin-top: 8px;
+
+    text-align: left;
+}
+
+
+.manager-word {
+    font-size: 18px;
+
+    font-weight: bold;
+}
+
+
+.manager-translation {
+    margin-top: 3px;
+}
+
+
+.manager-tags {
+    font-size: 13px;
+
+    opacity: 0.7;
+
+    margin-top: 5px;
+}
+
+
+.manager-buttons {
+    margin-top: 8px;
+}
+
+
+/* ============================= */
+/* FILTERS */
+/* ============================= */
 
 .tag-buttons {
     display: flex;
@@ -81,6 +203,8 @@ h1 {
 
 .filter-mode {
     margin-top: 12px;
+
+    text-align: center;
 }
 
 
@@ -105,68 +229,6 @@ h1 {
 
 
 /* ============================= */
-/* CARD */
-/* ============================= */
-
-.card {
-    background: white;
-
-    border-radius: 20px;
-
-    padding: 40px 20px;
-
-    box-shadow:
-        0 4px 15px rgba(0, 0, 0, 0.1);
-}
-
-
-/* Question word */
-
-.word {
-    font-size: 36px;
-
-    font-weight: bold;
-
-    margin-bottom: 30px;
-}
-
-
-/* Question sentence */
-
-.sentence {
-    font-size: 22px;
-
-    margin-top: 20px;
-
-    margin-bottom: 25px;
-}
-
-
-/* Answer word */
-
-.answer {
-    font-size: 30px;
-
-    font-weight: bold;
-
-    margin-top: 25px;
-}
-
-
-/* Answer sentence */
-
-.sentence-translation {
-    font-size: 22px;
-
-    font-style: italic;
-
-    margin-top: 20px;
-
-    margin-bottom: 30px;
-}
-
-
-/* ============================= */
 /* GENERAL BUTTONS */
 /* ============================= */
 
@@ -186,7 +248,61 @@ button {
 
 
 /* ============================= */
-/* REVIEW BUTTONS */
+/* CARD */
+/* ============================= */
+
+.card {
+    background: white;
+
+    border-radius: 20px;
+
+    padding: 40px 20px;
+
+    box-shadow:
+        0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+
+.word {
+    font-size: 36px;
+
+    font-weight: bold;
+
+    margin-bottom: 30px;
+}
+
+
+.sentence {
+    font-size: 22px;
+
+    margin-top: 20px;
+
+    margin-bottom: 25px;
+}
+
+
+.answer {
+    font-size: 30px;
+
+    font-weight: bold;
+
+    margin-top: 25px;
+}
+
+
+.sentence-translation {
+    font-size: 22px;
+
+    font-style: italic;
+
+    margin-top: 20px;
+
+    margin-bottom: 30px;
+}
+
+
+/* ============================= */
+/* REVIEW */
 /* ============================= */
 
 .review-buttons {
@@ -199,7 +315,7 @@ button {
 
 
 /* ============================= */
-/* STUDY INFO */
+/* INFO */
 /* ============================= */
 
 .study-info {
@@ -210,10 +326,6 @@ button {
     line-height: 1.5;
 }
 
-
-/* ============================= */
-/* PROGRESS */
-/* ============================= */
 
 .progress-info {
     margin-top: 25px;
@@ -257,7 +369,7 @@ button {
 /* ============================= */
 
 .hidden {
-    display: none;
+    display: none !important;
 }
 
 
@@ -275,33 +387,4 @@ button {
     font-size: 12px;
 
     opacity: 0.5;
-}
-
-/* ============================= */
-/* DATA PANEL */
-/* ============================= */
-
-.data-panel {
-    background: white;
-
-    border-radius: 16px;
-
-    padding: 15px;
-
-    margin-bottom: 20px;
-
-    box-shadow:
-        0 2px 8px rgba(0, 0, 0, 0.08);
-}
-
-
-.data-panel button {
-    font-size: 15px;
-
-    padding: 10px 14px;
-}
-
-
-.data-panel .filter-title {
-    margin-bottom: 10px;
 }
