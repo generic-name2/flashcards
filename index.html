@@ -19,7 +19,7 @@
 <body>
 
     <div class="version">
-        v0.4.0
+        v0.5.0
     </div>
 
 
@@ -28,13 +28,64 @@
         <h1>My Flashcards</h1>
 
 
+        <!-- ========================= -->
+        <!-- DATA MANAGEMENT -->
+        <!-- ========================= -->
+
+        <div class="data-panel">
+
+            <div class="filter-title">
+                My Data
+            </div>
+
+
+            <button id="exportCardsButton">
+                Export Cards
+            </button>
+
+            <button id="importCardsButton">
+                Import Cards
+            </button>
+
+            <input
+                type="file"
+                id="cardsFileInput"
+                accept=".json"
+                class="hidden"
+            >
+
+
+            <br>
+
+
+            <button id="exportProgressButton">
+                Export Progress
+            </button>
+
+            <button id="importProgressButton">
+                Import Progress
+            </button>
+
+            <input
+                type="file"
+                id="progressFileInput"
+                accept=".json"
+                class="hidden"
+            >
+
+        </div>
+
+
+        <!-- ========================= -->
         <!-- TAG FILTERS -->
+        <!-- ========================= -->
 
         <div class="filters">
 
             <div class="filter-title">
                 Categories
             </div>
+
 
             <div id="tagButtons"
                  class="tag-buttons">
@@ -58,11 +109,11 @@
         </div>
 
 
+        <!-- ========================= -->
         <!-- CARD -->
+        <!-- ========================= -->
 
         <div class="card">
-
-            <!-- Question word -->
 
             <div id="word"
                  class="word">
@@ -70,42 +121,30 @@
             </div>
 
 
-            <!-- Question sentence -->
-
             <div id="sentence"
                  class="sentence hidden">
             </div>
 
-
-            <!-- Answer word -->
 
             <div id="answer"
                  class="answer hidden">
             </div>
 
 
-            <!-- Answer sentence -->
-
             <div id="sentenceTranslation"
                  class="sentence-translation hidden">
             </div>
 
-
-            <!-- Sentence button -->
 
             <button id="sentenceButton">
                 Show Sentence
             </button>
 
 
-            <!-- Answer button -->
-
             <button id="answerButton">
                 Show Answer
             </button>
 
-
-            <!-- Review buttons -->
 
             <div id="reviewButtons"
                  class="review-buttons hidden">
@@ -129,8 +168,6 @@
             </div>
 
 
-            <!-- Progress -->
-
             <div id="progressInfo"
                  class="progress-info">
             </div>
@@ -138,14 +175,18 @@
         </div>
 
 
-        <!-- STUDY INFORMATION -->
+        <!-- ========================= -->
+        <!-- STUDY INFO -->
+        <!-- ========================= -->
 
         <div id="studyInfo"
              class="study-info">
         </div>
 
 
+        <!-- ========================= -->
         <!-- DEBUG -->
+        <!-- ========================= -->
 
         <div class="debug-panel">
 
