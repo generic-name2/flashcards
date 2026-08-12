@@ -8,6 +8,15 @@ let answerVisible = false;
 
 
 // ========================================
+// TAG FILTER STATE
+// ========================================
+
+let selectedTags = [];
+
+let filterMode = "OR";
+
+
+// ========================================
 // LOAD CARDS
 // ========================================
 
@@ -19,24 +28,292 @@ async function loadCards() {
     cards =
         await response.json();
 
+
+    createTagButtons();
+
     showNextCard();
 }
 
 
 // ========================================
-// GET SAVED PROGRESS
+// GET ALL TAGS
+// ========================================
+
+function getAllTags() {
+
+    const tagSet =
+        new Set();
+
+
+    cards.forEach(function(card) {
+
+        if (!card.tags) {
+            return;
+        }
+
+
+        card.tags.forEach(function(tag) {
+
+            tagSet.add(tag);
+
+        });
+
+    });
+
+
+    return Array.from(tagSet).sort();
+}
+
+
+// ========================================
+// CREATE TAG BUTTONS
+// ========================================
+
+function createTagButtons() {
+
+    const container =
+        document.getElementById(
+            "tagButtons"
+        );
+
+
+    container.innerHTML = "";
+
+
+    // All button
+
+    const allButton =
+        document.createElement("button");
+
+
+    allButton.textContent =
+        "All";
+
+
+    allButton.className =
+        "tag-button selected";
+
+
+    allButton.id =
+        "allTagButton";
+
+
+    allButton.addEventListener(
+        "click",
+        function() {
+
+            selectedTags = [];
+
+            updateTagButtons();
+
+            showNextCard();
+
+        }
+    );
+
+
+    container.appendChild(
+        allButton
+    );
+
+
+    // Individual tags
+
+    const tags =
+        getAllTags();
+
+
+    tags.forEach(function(tag) {
+
+        const button =
+            document.createElement(
+                "button"
+            );
+
+
+        button.textContent =
+            tag;
+
+
+        button.className =
+            "tag-button";
+
+
+        button.dataset.tag =
+            tag;
+
+
+        button.addEventListener(
+            "click",
+            function() {
+
+                toggleTag(tag);
+
+            }
+        );
+
+
+        container.appendChild(
+            button
+        );
+
+    });
+}
+
+
+// ========================================
+// TOGGLE TAG
+// ========================================
+
+function toggleTag(tag) {
+
+    const index =
+        selectedTags.indexOf(tag);
+
+
+    if (index === -1) {
+
+        selectedTags.push(tag);
+
+    } else {
+
+        selectedTags.splice(index, 1);
+
+    }
+
+
+    updateTagButtons();
+
+    showNextCard();
+}
+
+
+// ========================================
+// UPDATE TAG BUTTONS
+// ========================================
+
+function updateTagButtons() {
+
+    const allButton =
+        document.getElementById(
+            "allTagButton"
+        );
+
+
+    // No tags selected = All
+
+    if (selectedTags.length === 0) {
+
+        allButton.classList.add(
+            "selected"
+        );
+
+    } else {
+
+        allButton.classList.remove(
+            "selected"
+        );
+    }
+
+
+    // Individual tags
+
+    document
+        .querySelectorAll(".tag-button")
+        .forEach(function(button) {
+
+            const tag =
+                button.dataset.tag;
+
+
+            if (
+                tag &&
+                selectedTags.includes(tag)
+            ) {
+
+                button.classList.add(
+                    "selected"
+                );
+
+            } else if (tag) {
+
+                button.classList.remove(
+                    "selected"
+                );
+            }
+
+        });
+}
+
+
+// ========================================
+// FILTER CARDS BY TAG
+// ========================================
+
+function cardMatchesTags(card) {
+
+    // No filter
+
+    if (selectedTags.length === 0) {
+
+        return true;
+    }
+
+
+    const cardTags =
+        card.tags || [];
+
+
+    // OR mode:
+    // card needs at least one tag
+
+    if (filterMode === "OR") {
+
+        return selectedTags.some(
+            function(tag) {
+
+                return cardTags.includes(
+                    tag
+                );
+
+            }
+        );
+    }
+
+
+    // AND mode:
+    // card needs every tag
+
+    return selectedTags.every(
+        function(tag) {
+
+            return cardTags.includes(
+                tag
+            );
+
+        }
+    );
+}
+
+
+// ========================================
+// GET PROGRESS
 // ========================================
 
 function getProgress() {
 
     const saved =
-        localStorage.getItem("flashcardProgress");
+        localStorage.getItem(
+            "flashcardProgress"
+        );
+
 
     if (saved) {
 
         return JSON.parse(saved);
 
     }
+
 
     return {};
 }
@@ -50,6 +327,7 @@ function saveProgress(progress) {
 
     localStorage.setItem(
         "flashcardProgress",
+
         JSON.stringify(progress)
     );
 }
@@ -64,34 +342,115 @@ function getAvailableCards() {
     const progress =
         getProgress();
 
+
     const now =
         Date.now();
 
 
-    return cards.filter(function(card) {
-
-        const cardProgress =
-            progress[card.id];
+    return cards.filter(
+        function(card) {
 
 
-        // Never reviewed = new card
-        if (!cardProgress) {
+            // First apply tag filter
 
-            return true;
+            if (!cardMatchesTags(card)) {
+
+                return false;
+            }
+
+
+            const cardProgress =
+                progress[card.id];
+
+
+            // New card
+
+            if (!cardProgress) {
+
+                return true;
+            }
+
+
+            // Reviewed card
+
+            return (
+                cardProgress.due <= now
+            );
+
         }
-
-
-        // Reviewed card:
-        // available only when due
-
-        return cardProgress.due <= now;
-
-    });
+    );
 }
 
 
 // ========================================
-// FIND NEXT CARD
+// COUNT NEW CARDS
+// ========================================
+
+function getNewCards() {
+
+    const progress =
+        getProgress();
+
+
+    return cards.filter(
+        function(card) {
+
+            return (
+                cardMatchesTags(card) &&
+                !progress[card.id]
+            );
+
+        }
+    );
+}
+
+
+// ========================================
+// COUNT DUE CARDS
+// ========================================
+
+function getDueCards() {
+
+    const progress =
+        getProgress();
+
+
+    const now =
+        Date.now();
+
+
+    return cards.filter(
+        function(card) {
+
+            if (
+                !cardMatchesTags(card)
+            ) {
+
+                return false;
+            }
+
+
+            const cardProgress =
+                progress[card.id];
+
+
+            if (!cardProgress) {
+
+                return false;
+            }
+
+
+            return (
+                cardProgress.due <= now
+            );
+
+        }
+    );
+}
+
+
+// ========================================
+// SHOW NEXT CARD
 // ========================================
 
 function showNextCard() {
@@ -100,39 +459,34 @@ function showNextCard() {
         getAvailableCards();
 
 
-    // ------------------------------------
-    // Cards are available
-    // ------------------------------------
-
-    if (availableCards.length > 0) {
-
-        const randomIndex =
-            Math.floor(
-                Math.random() *
-                availableCards.length
-            );
+    updateStudyInfo();
 
 
-        const selectedCard =
-            availableCards[randomIndex];
+    if (
+        availableCards.length === 0
+    ) {
 
-
-        displayCard(selectedCard);
+        showNothingDue();
 
         return;
     }
 
 
-    // ------------------------------------
-    // Nothing is available right now
-    // ------------------------------------
+    const randomIndex =
+        Math.floor(
+            Math.random() *
+            availableCards.length
+        );
 
-    showNothingDue();
+
+    displayCard(
+        availableCards[randomIndex]
+    );
 }
 
 
 // ========================================
-// DISPLAY A CARD
+// DISPLAY CARD
 // ========================================
 
 function displayCard(card) {
@@ -141,36 +495,26 @@ function displayCard(card) {
         card;
 
 
-    // Question word
-
     document.getElementById("word")
         .textContent =
         currentCard.word;
 
-
-    // Question sentence
 
     document.getElementById("sentence")
         .textContent =
         currentCard.sentence;
 
 
-    // Answer word
-
     document.getElementById("answer")
         .textContent =
         currentCard.translation;
 
-
-    // Answer sentence
 
     document.getElementById(
         "sentenceTranslation"
     ).textContent =
         currentCard.sentence_translation;
 
-
-    // Reset visibility
 
     sentenceVisible = false;
 
@@ -181,8 +525,6 @@ function displayCard(card) {
 
     updateProgressDisplay();
 
-
-    // Hide review buttons
 
     document.getElementById(
         "reviewButtons"
@@ -254,16 +596,79 @@ function showNothingDue() {
 
 
 // ========================================
+// STUDY INFORMATION
+// ========================================
+
+function updateStudyInfo() {
+
+    const newCards =
+        getNewCards();
+
+
+    const dueCards =
+        getDueCards();
+
+
+    const availableCards =
+        getAvailableCards();
+
+
+    const studyInfo =
+        document.getElementById(
+            "studyInfo"
+        );
+
+
+    let filterText =
+        "All cards";
+
+
+    if (
+        selectedTags.length > 0
+    ) {
+
+        filterText =
+            selectedTags.join(
+                filterMode === "OR"
+                    ? " OR "
+                    : " AND "
+            );
+
+    }
+
+
+    studyInfo.innerHTML =
+
+        "<strong>" +
+        filterText +
+        "</strong><br>" +
+
+        "New: " +
+        newCards.length +
+        " · Due: " +
+        dueCards.length +
+        " · Available: " +
+        availableCards.length;
+}
+
+
+// ========================================
 // UPDATE DISPLAY
 // ========================================
 
 function updateDisplay() {
 
     const sentence =
-        document.getElementById("sentence");
+        document.getElementById(
+            "sentence"
+        );
+
 
     const answer =
-        document.getElementById("answer");
+        document.getElementById(
+            "answer"
+        );
+
 
     const sentenceTranslation =
         document.getElementById(
@@ -271,37 +676,39 @@ function updateDisplay() {
         );
 
 
-    // ------------------------------------
     // Question sentence
-    // ------------------------------------
 
     if (sentenceVisible) {
 
-        sentence.classList.remove("hidden");
+        sentence.classList.remove(
+            "hidden"
+        );
 
     } else {
 
-        sentence.classList.add("hidden");
+        sentence.classList.add(
+            "hidden"
+        );
     }
 
 
-    // ------------------------------------
     // Answer word
-    // ------------------------------------
 
     if (answerVisible) {
 
-        answer.classList.remove("hidden");
+        answer.classList.remove(
+            "hidden"
+        );
 
     } else {
 
-        answer.classList.add("hidden");
+        answer.classList.add(
+            "hidden"
+        );
     }
 
 
-    // ------------------------------------
     // Answer sentence
-    // ------------------------------------
 
     if (
         sentenceVisible &&
@@ -309,22 +716,25 @@ function updateDisplay() {
     ) {
 
         sentenceTranslation
-            .classList.remove("hidden");
+            .classList.remove(
+                "hidden"
+            );
 
     } else {
 
         sentenceTranslation
-            .classList.add("hidden");
+            .classList.add(
+                "hidden"
+            );
     }
 
 
-    // ------------------------------------
     // Button labels
-    // ------------------------------------
 
     document.getElementById(
         "sentenceButton"
     ).textContent =
+
         sentenceVisible
             ? "Hide Sentence"
             : "Show Sentence";
@@ -333,41 +743,48 @@ function updateDisplay() {
     document.getElementById(
         "answerButton"
     ).textContent =
+
         answerVisible
             ? "Hide Answer"
             : "Show Answer";
 
 
-    // ------------------------------------
     // Review buttons
-    // ------------------------------------
 
-    if (answerVisible && currentCard) {
+    if (
+        answerVisible &&
+        currentCard
+    ) {
 
         document.getElementById(
             "reviewButtons"
-        ).classList.remove("hidden");
+        ).classList.remove(
+            "hidden"
+        );
 
     } else {
 
         document.getElementById(
             "reviewButtons"
-        ).classList.add("hidden");
+        ).classList.add(
+            "hidden"
+        );
     }
 }
 
 
 // ========================================
-// SHOW / HIDE SENTENCE
+// SENTENCE BUTTON
 // ========================================
 
 document.getElementById(
     "sentenceButton"
 ).addEventListener(
     "click",
-    function () {
+    function() {
 
         if (!currentCard) {
+
             return;
         }
 
@@ -382,16 +799,17 @@ document.getElementById(
 
 
 // ========================================
-// SHOW / HIDE ANSWER
+// ANSWER BUTTON
 // ========================================
 
 document.getElementById(
     "answerButton"
 ).addEventListener(
     "click",
-    function () {
+    function() {
 
         if (!currentCard) {
+
             return;
         }
 
@@ -409,7 +827,9 @@ document.getElementById(
 // FORMAT INTERVAL
 // ========================================
 
-function formatInterval(milliseconds) {
+function formatInterval(
+    milliseconds
+) {
 
     const minutes =
         Math.round(
@@ -419,8 +839,10 @@ function formatInterval(milliseconds) {
 
     if (minutes < 60) {
 
-        return minutes +
-            " minute(s)";
+        return (
+            minutes +
+            " minute(s)"
+        );
     }
 
 
@@ -432,8 +854,10 @@ function formatInterval(milliseconds) {
 
     if (hours < 24) {
 
-        return hours +
-            " hour(s)";
+        return (
+            hours +
+            " hour(s)"
+        );
     }
 
 
@@ -443,8 +867,10 @@ function formatInterval(milliseconds) {
         );
 
 
-    return days +
-        " day(s)";
+    return (
+        days +
+        " day(s)"
+    );
 }
 
 
@@ -490,8 +916,6 @@ function updateProgressDisplay() {
         );
 
 
-    // No current card
-
     if (!currentCard) {
 
         return;
@@ -505,10 +929,6 @@ function updateProgressDisplay() {
     const cardProgress =
         progress[id];
 
-
-    // ------------------------------------
-    // New card
-    // ------------------------------------
 
     if (!cardProgress) {
 
@@ -534,10 +954,6 @@ function updateProgressDisplay() {
         return;
     }
 
-
-    // ------------------------------------
-    // Existing card
-    // ------------------------------------
 
     progressInfo.innerHTML =
 
@@ -580,7 +996,7 @@ function updateProgressDisplay() {
 
 
 // ========================================
-// REVIEW A CARD
+// REVIEW CARD
 // ========================================
 
 function reviewCard(choice) {
@@ -599,10 +1015,6 @@ function reviewCard(choice) {
         currentCard.id;
 
 
-    // ------------------------------------
-    // Create progress record
-    // ------------------------------------
-
     if (!progress[id]) {
 
         progress[id] = {
@@ -614,6 +1026,7 @@ function reviewCard(choice) {
             lastAnswer: null,
 
             due: null
+
         };
     }
 
@@ -622,41 +1035,45 @@ function reviewCard(choice) {
         progress[id];
 
 
-    // ------------------------------------
-    // Choose interval
-    // ------------------------------------
-
-    if (choice === "mistake") {
+    if (
+        choice === "mistake"
+    ) {
 
         cardProgress.interval =
             0;
+
     }
 
 
-    else if (choice === "hard") {
+    else if (
+        choice === "hard"
+    ) {
 
         cardProgress.interval =
             30 * 60 * 1000;
+
     }
 
 
-    else if (choice === "good") {
+    else if (
+        choice === "good"
+    ) {
 
         cardProgress.interval =
             24 * 60 * 60 * 1000;
+
     }
 
 
-    else if (choice === "easy") {
+    else if (
+        choice === "easy"
+    ) {
 
         cardProgress.interval =
             7 * 24 * 60 * 60 * 1000;
+
     }
 
-
-    // ------------------------------------
-    // Update history
-    // ------------------------------------
 
     cardProgress.repetitions += 1;
 
@@ -664,25 +1081,13 @@ function reviewCard(choice) {
         choice;
 
 
-    // ------------------------------------
-    // Calculate due date
-    // ------------------------------------
-
     cardProgress.due =
         Date.now() +
         cardProgress.interval;
 
 
-    // ------------------------------------
-    // Save
-    // ------------------------------------
-
     saveProgress(progress);
 
-
-    // ------------------------------------
-    // Find another card
-    // ------------------------------------
 
     showNextCard();
 }
@@ -696,9 +1101,10 @@ document.getElementById(
     "mistakeButton"
 ).addEventListener(
     "click",
-    function () {
+    function() {
 
         reviewCard("mistake");
+
     }
 );
 
@@ -707,9 +1113,10 @@ document.getElementById(
     "hardButton"
 ).addEventListener(
     "click",
-    function () {
+    function() {
 
         reviewCard("hard");
+
     }
 );
 
@@ -718,9 +1125,10 @@ document.getElementById(
     "goodButton"
 ).addEventListener(
     "click",
-    function () {
+    function() {
 
         reviewCard("good");
+
     }
 );
 
@@ -729,9 +1137,70 @@ document.getElementById(
     "easyButton"
 ).addEventListener(
     "click",
-    function () {
+    function() {
 
         reviewCard("easy");
+
+    }
+);
+
+
+// ========================================
+// OR / AND MODE
+// ========================================
+
+document.getElementById(
+    "orButton"
+).addEventListener(
+    "click",
+    function() {
+
+        filterMode = "OR";
+
+
+        document.getElementById(
+            "orButton"
+        ).classList.add(
+            "active"
+        );
+
+
+        document.getElementById(
+            "andButton"
+        ).classList.remove(
+            "active"
+        );
+
+
+        showNextCard();
+    }
+);
+
+
+document.getElementById(
+    "andButton"
+).addEventListener(
+    "click",
+    function() {
+
+        filterMode = "AND";
+
+
+        document.getElementById(
+            "andButton"
+        ).classList.add(
+            "active"
+        );
+
+
+        document.getElementById(
+            "orButton"
+        ).classList.remove(
+            "active"
+        );
+
+
+        showNextCard();
     }
 );
 
