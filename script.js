@@ -2,14 +2,11 @@ let cards = [];
 
 let currentCard = null;
 
+let editingCardId = null;
+
 let sentenceVisible = false;
 
 let answerVisible = false;
-
-
-// ========================================
-// TAG FILTER STATE
-// ========================================
 
 let selectedTags = [];
 
@@ -17,14 +14,13 @@ let filterMode = "OR";
 
 
 // ========================================
-// LOAD CARDS
+// LOAD
 // ========================================
 
 async function loadCards() {
 
     const response =
         await fetch("cards.json");
-
 
     const defaultCards =
         await response.json();
@@ -46,10 +42,13 @@ async function loadCards() {
         cards =
             defaultCards;
 
+        saveCards();
     }
 
 
     createTagButtons();
+
+    renderCardManager();
 
     showNextCard();
 }
@@ -63,14 +62,13 @@ function saveCards() {
 
     localStorage.setItem(
         "flashcardCards",
-
         JSON.stringify(cards)
     );
 }
 
 
 // ========================================
-// GET PROGRESS
+// PROGRESS
 // ========================================
 
 function getProgress() {
@@ -81,33 +79,23 @@ function getProgress() {
         );
 
 
-    if (saved) {
-
-        return JSON.parse(saved);
-
-    }
-
-
-    return {};
+    return saved
+        ? JSON.parse(saved)
+        : {};
 }
 
-
-// ========================================
-// SAVE PROGRESS
-// ========================================
 
 function saveProgress(progress) {
 
     localStorage.setItem(
         "flashcardProgress",
-
         JSON.stringify(progress)
     );
 }
 
 
 // ========================================
-// GET ALL TAGS
+// TAGS
 // ========================================
 
 function getAllTags() {
@@ -118,17 +106,13 @@ function getAllTags() {
 
     cards.forEach(function(card) {
 
-        if (!card.tags) {
+        (card.tags || []).forEach(
+            function(tag) {
 
-            return;
-        }
+                tagSet.add(tag);
 
-
-        card.tags.forEach(function(tag) {
-
-            tagSet.add(tag);
-
-        });
+            }
+        );
 
     });
 
@@ -138,10 +122,6 @@ function getAllTags() {
     ).sort();
 }
 
-
-// ========================================
-// CREATE TAG BUTTONS
-// ========================================
 
 function createTagButtons() {
 
@@ -160,20 +140,16 @@ function createTagButtons() {
         );
 
 
-    allButton.textContent =
-        "All";
-
+    allButton.textContent = "All";
 
     allButton.className =
         "tag-button selected";
-
 
     allButton.id =
         "allTagButton";
 
 
-    allButton.addEventListener(
-        "click",
+    allButton.onclick =
         function() {
 
             selectedTags = [];
@@ -182,8 +158,7 @@ function createTagButtons() {
 
             showNextCard();
 
-        }
-    );
+        };
 
 
     container.appendChild(
@@ -191,51 +166,41 @@ function createTagButtons() {
     );
 
 
-    const tags =
-        getAllTags();
+    getAllTags().forEach(
+        function(tag) {
+
+            const button =
+                document.createElement(
+                    "button"
+                );
 
 
-    tags.forEach(function(tag) {
+            button.textContent =
+                tag;
 
-        const button =
-            document.createElement(
-                "button"
+            button.className =
+                "tag-button";
+
+            button.dataset.tag =
+                tag;
+
+
+            button.onclick =
+                function() {
+
+                    toggleTag(tag);
+
+                };
+
+
+            container.appendChild(
+                button
             );
 
-
-        button.textContent =
-            tag;
-
-
-        button.className =
-            "tag-button";
-
-
-        button.dataset.tag =
-            tag;
-
-
-        button.addEventListener(
-            "click",
-            function() {
-
-                toggleTag(tag);
-
-            }
-        );
-
-
-        container.appendChild(
-            button
-        );
-
-    });
+        }
+    );
 }
 
-
-// ========================================
-// TOGGLE TAG
-// ========================================
 
 function toggleTag(tag) {
 
@@ -263,10 +228,6 @@ function toggleTag(tag) {
 }
 
 
-// ========================================
-// UPDATE TAG BUTTONS
-// ========================================
-
 function updateTagButtons() {
 
     const allButton =
@@ -275,52 +236,40 @@ function updateTagButtons() {
         );
 
 
-    if (
+    allButton.classList.toggle(
+        "selected",
         selectedTags.length === 0
-    ) {
-
-        allButton.classList.add(
-            "selected"
-        );
-
-    } else {
-
-        allButton.classList.remove(
-            "selected"
-        );
-    }
+    );
 
 
     document
-        .querySelectorAll(".tag-button")
-        .forEach(function(button) {
+        .querySelectorAll(
+            ".tag-button"
+        )
+        .forEach(
+            function(button) {
 
-            const tag =
-                button.dataset.tag;
+                const tag =
+                    button.dataset.tag;
 
 
-            if (
-                tag &&
-                selectedTags.includes(tag)
-            ) {
+                if (!tag) {
+                    return;
+                }
 
-                button.classList.add(
-                    "selected"
+
+                button.classList.toggle(
+                    "selected",
+                    selectedTags.includes(tag)
                 );
 
-            } else if (tag) {
-
-                button.classList.remove(
-                    "selected"
-                );
             }
-
-        });
+        );
 }
 
 
 // ========================================
-// CARD TAG MATCHING
+// FILTER
 // ========================================
 
 function cardMatchesTags(card) {
@@ -333,7 +282,7 @@ function cardMatchesTags(card) {
     }
 
 
-    const cardTags =
+    const tags =
         card.tags || [];
 
 
@@ -342,9 +291,7 @@ function cardMatchesTags(card) {
         return selectedTags.some(
             function(tag) {
 
-                return cardTags.includes(
-                    tag
-                );
+                return tags.includes(tag);
 
             }
         );
@@ -354,9 +301,7 @@ function cardMatchesTags(card) {
     return selectedTags.every(
         function(tag) {
 
-            return cardTags.includes(
-                tag
-            );
+            return tags.includes(tag);
 
         }
     );
@@ -364,14 +309,13 @@ function cardMatchesTags(card) {
 
 
 // ========================================
-// AVAILABLE CARDS
+// SCHEDULER
 // ========================================
 
 function getAvailableCards() {
 
     const progress =
         getProgress();
-
 
     const now =
         Date.now();
@@ -388,28 +332,22 @@ function getAvailableCards() {
             }
 
 
-            const cardProgress =
+            const p =
                 progress[card.id];
 
 
-            if (!cardProgress) {
+            if (!p) {
 
                 return true;
             }
 
 
-            return (
-                cardProgress.due <= now
-            );
+            return p.due <= now;
 
         }
     );
 }
 
-
-// ========================================
-// NEW CARDS
-// ========================================
 
 function getNewCards() {
 
@@ -430,15 +368,10 @@ function getNewCards() {
 }
 
 
-// ========================================
-// DUE CARDS
-// ========================================
-
 function getDueCards() {
 
     const progress =
         getProgress();
-
 
     const now =
         Date.now();
@@ -447,26 +380,14 @@ function getDueCards() {
     return cards.filter(
         function(card) {
 
-            if (
-                !cardMatchesTags(card)
-            ) {
-
-                return false;
-            }
-
-
-            const cardProgress =
+            const p =
                 progress[card.id];
 
 
-            if (!cardProgress) {
-
-                return false;
-            }
-
-
             return (
-                cardProgress.due <= now
+                cardMatchesTags(card) &&
+                p &&
+                p.due <= now
             );
 
         }
@@ -475,20 +396,20 @@ function getDueCards() {
 
 
 // ========================================
-// SHOW NEXT CARD
+// NEXT CARD
 // ========================================
 
 function showNextCard() {
 
-    const availableCards =
-        getAvailableCards();
-
-
     updateStudyInfo();
 
 
+    const available =
+        getAvailableCards();
+
+
     if (
-        availableCards.length === 0
+        available.length === 0
     ) {
 
         showNothingDue();
@@ -497,21 +418,21 @@ function showNextCard() {
     }
 
 
-    const randomIndex =
+    const index =
         Math.floor(
             Math.random() *
-            availableCards.length
+            available.length
         );
 
 
     displayCard(
-        availableCards[randomIndex]
+        available[index]
     );
 }
 
 
 // ========================================
-// DISPLAY CARD
+// DISPLAY
 // ========================================
 
 function displayCard(card) {
@@ -523,25 +444,25 @@ function displayCard(card) {
     document.getElementById(
         "word"
     ).textContent =
-        currentCard.word;
+        card.word;
 
 
     document.getElementById(
         "sentence"
     ).textContent =
-        currentCard.sentence;
+        card.sentence || "";
 
 
     document.getElementById(
         "answer"
     ).textContent =
-        currentCard.translation;
+        card.translation;
 
 
     document.getElementById(
         "sentenceTranslation"
     ).textContent =
-        currentCard.sentence_translation;
+        card.sentence_translation || "";
 
 
     sentenceVisible = false;
@@ -562,10 +483,6 @@ function displayCard(card) {
 }
 
 
-// ========================================
-// NOTHING DUE
-// ========================================
-
 function showNothingDue() {
 
     currentCard = null;
@@ -579,93 +496,108 @@ function showNothingDue() {
 
     document.getElementById(
         "sentence"
-    ).textContent =
-        "";
+    ).textContent = "";
 
 
     document.getElementById(
         "answer"
-    ).textContent =
-        "";
+    ).textContent = "";
 
 
     document.getElementById(
         "sentenceTranslation"
-    ).textContent =
-        "";
+    ).textContent = "";
 
 
-    document.getElementById(
-        "sentence"
-    ).classList.add(
-        "hidden"
-    );
-
-
-    document.getElementById(
-        "answer"
-    ).classList.add(
-        "hidden"
-    );
-
-
-    document.getElementById(
-        "sentenceTranslation"
-    ).classList.add(
-        "hidden"
-    );
-
-
-    document.getElementById(
+    [
+        "sentence",
+        "answer",
+        "sentenceTranslation",
         "reviewButtons"
-    ).classList.add(
-        "hidden"
+    ].forEach(
+        function(id) {
+
+            document.getElementById(
+                id
+            ).classList.add(
+                "hidden"
+            );
+
+        }
     );
-
-
-    document.getElementById(
-        "progressInfo"
-    ).innerHTML =
-        "No cards are due right now.";
-
-
-    document.getElementById(
-        "debugInfo"
-    ).innerHTML =
-        "The scheduler is waiting for the next due card.";
 }
 
 
 // ========================================
-// STUDY INFORMATION
+// DISPLAY STATE
+// ========================================
+
+function updateDisplay() {
+
+    document.getElementById(
+        "sentence"
+    ).classList.toggle(
+        "hidden",
+        !sentenceVisible
+    );
+
+
+    document.getElementById(
+        "answer"
+    ).classList.toggle(
+        "hidden",
+        !answerVisible
+    );
+
+
+    document.getElementById(
+        "sentenceTranslation"
+    ).classList.toggle(
+        "hidden",
+        !(
+            sentenceVisible &&
+            answerVisible
+        )
+    );
+
+
+    document.getElementById(
+        "sentenceButton"
+    ).textContent =
+        sentenceVisible
+            ? "Hide Sentence"
+            : "Show Sentence";
+
+
+    document.getElementById(
+        "answerButton"
+    ).textContent =
+        answerVisible
+            ? "Hide Answer"
+            : "Show Answer";
+
+
+    document.getElementById(
+        "reviewButtons"
+    ).classList.toggle(
+        "hidden",
+        !answerVisible || !currentCard
+    );
+}
+
+
+// ========================================
+// STUDY INFO
 // ========================================
 
 function updateStudyInfo() {
-
-    const newCards =
-        getNewCards();
-
-
-    const dueCards =
-        getDueCards();
-
-
-    const availableCards =
-        getAvailableCards();
-
-
-    const studyInfo =
-        document.getElementById(
-            "studyInfo"
-        );
-
 
     let filterText =
         "All cards";
 
 
     if (
-        selectedTags.length > 0
+        selectedTags.length
     ) {
 
         filterText =
@@ -678,131 +610,22 @@ function updateStudyInfo() {
     }
 
 
-    studyInfo.innerHTML =
+    document.getElementById(
+        "studyInfo"
+    ).innerHTML =
 
         "<strong>" +
         filterText +
         "</strong><br>" +
 
         "New: " +
-        newCards.length +
+        getNewCards().length +
 
         " · Due: " +
-        dueCards.length +
+        getDueCards().length +
 
         " · Available: " +
-        availableCards.length;
-}
-
-
-// ========================================
-// UPDATE DISPLAY
-// ========================================
-
-function updateDisplay() {
-
-    const sentence =
-        document.getElementById(
-            "sentence"
-        );
-
-
-    const answer =
-        document.getElementById(
-            "answer"
-        );
-
-
-    const sentenceTranslation =
-        document.getElementById(
-            "sentenceTranslation"
-        );
-
-
-    if (sentenceVisible) {
-
-        sentence.classList.remove(
-            "hidden"
-        );
-
-    } else {
-
-        sentence.classList.add(
-            "hidden"
-        );
-    }
-
-
-    if (answerVisible) {
-
-        answer.classList.remove(
-            "hidden"
-        );
-
-    } else {
-
-        answer.classList.add(
-            "hidden"
-        );
-    }
-
-
-    if (
-        sentenceVisible &&
-        answerVisible
-    ) {
-
-        sentenceTranslation
-            .classList.remove(
-                "hidden"
-            );
-
-    } else {
-
-        sentenceTranslation
-            .classList.add(
-                "hidden"
-            );
-    }
-
-
-    document.getElementById(
-        "sentenceButton"
-    ).textContent =
-
-        sentenceVisible
-            ? "Hide Sentence"
-            : "Show Sentence";
-
-
-    document.getElementById(
-        "answerButton"
-    ).textContent =
-
-        answerVisible
-            ? "Hide Answer"
-            : "Show Answer";
-
-
-    if (
-        answerVisible &&
-        currentCard
-    ) {
-
-        document.getElementById(
-            "reviewButtons"
-        ).classList.remove(
-            "hidden"
-        );
-
-    } else {
-
-        document.getElementById(
-            "reviewButtons"
-        ).classList.add(
-            "hidden"
-        );
-    }
+        getAvailableCards().length;
 }
 
 
@@ -812,126 +635,87 @@ function updateDisplay() {
 
 function updateProgressDisplay() {
 
-    const progress =
-        getProgress();
-
-
-    const progressInfo =
+    const info =
         document.getElementById(
             "progressInfo"
         );
 
 
-    const debugInfo =
+    const debug =
         document.getElementById(
             "debugInfo"
         );
 
 
     if (!currentCard) {
-
         return;
     }
 
 
-    const id =
-        currentCard.id;
+    const progress =
+        getProgress();
 
 
-    const cardProgress =
-        progress[id];
+    const p =
+        progress[currentCard.id];
 
 
-    if (!cardProgress) {
+    if (!p) {
 
-        progressInfo.innerHTML =
+        info.innerHTML =
             "New card";
 
 
-        debugInfo.innerHTML =
-
+        debug.innerHTML =
             "Card ID: " +
-            id +
-
-            "<br>" +
-
-            "Reviews: 0" +
-
-            "<br>" +
-
-            "Last answer: None" +
-
-            "<br>" +
-
-            "Interval: 0 minutes" +
-
-            "<br>" +
-
-            "Next review: Not scheduled";
+            currentCard.id +
+            "<br>Reviews: 0" +
+            "<br>Last answer: None" +
+            "<br>Interval: 0 minutes" +
+            "<br>Next review: Not scheduled";
 
 
         return;
     }
 
 
-    progressInfo.innerHTML =
+    info.innerHTML =
 
         "Last answer: <strong>" +
-
-        cardProgress.lastAnswer +
-
+        p.lastAnswer +
         "</strong><br>" +
 
         "Next review: <strong>" +
-
-        formatDate(
-            cardProgress.due
-        ) +
-
+        formatDate(p.due) +
         "</strong>";
 
 
-    debugInfo.innerHTML =
+    debug.innerHTML =
 
         "Card ID: " +
-        id +
+        currentCard.id +
 
-        "<br>" +
+        "<br>Reviews: " +
+        p.repetitions +
 
-        "Reviews: " +
-        cardProgress.repetitions +
+        "<br>Last answer: " +
+        p.lastAnswer +
 
-        "<br>" +
+        "<br>Interval: " +
+        formatInterval(p.interval) +
 
-        "Last answer: " +
-        cardProgress.lastAnswer +
-
-        "<br>" +
-
-        "Interval: " +
-
-        formatInterval(
-            cardProgress.interval
-        ) +
-
-        "<br>" +
-
-        "Next review: " +
-
-        formatDate(
-            cardProgress.due
-        );
+        "<br>Next review: " +
+        formatDate(p.due);
 }
 
 
 // ========================================
-// REVIEW CARD
+// REVIEW
 // ========================================
 
 function reviewCard(choice) {
 
     if (!currentCard) {
-
         return;
     }
 
@@ -960,127 +744,93 @@ function reviewCard(choice) {
     }
 
 
-    const cardProgress =
+    const p =
         progress[id];
 
 
-    if (
-        choice === "mistake"
-    ) {
+    if (choice === "mistake") {
 
-        cardProgress.interval =
-            0;
+        p.interval = 0;
 
     }
 
 
-    else if (
-        choice === "hard"
-    ) {
+    if (choice === "hard") {
 
-        cardProgress.interval =
+        p.interval =
             30 * 60 * 1000;
 
     }
 
 
-    else if (
-        choice === "good"
-    ) {
+    if (choice === "good") {
 
-        cardProgress.interval =
+        p.interval =
             24 * 60 * 60 * 1000;
 
     }
 
 
-    else if (
-        choice === "easy"
-    ) {
+    if (choice === "easy") {
 
-        cardProgress.interval =
+        p.interval =
             7 * 24 * 60 * 60 * 1000;
 
     }
 
 
-    cardProgress.repetitions += 1;
+    p.repetitions += 1;
 
-    cardProgress.lastAnswer =
-        choice;
+    p.lastAnswer = choice;
 
-
-    cardProgress.due =
+    p.due =
         Date.now() +
-        cardProgress.interval;
+        p.interval;
 
 
     saveProgress(progress);
-
 
     showNextCard();
 }
 
 
 // ========================================
-// FORMAT INTERVAL
+// FORMAT
 // ========================================
 
-function formatInterval(
-    milliseconds
-) {
+function formatInterval(ms) {
 
     const minutes =
-        Math.round(
-            milliseconds / 60000
-        );
+        Math.round(ms / 60000);
 
 
     if (minutes < 60) {
 
-        return (
-            minutes +
-            " minute(s)"
-        );
+        return minutes +
+            " minute(s)";
     }
 
 
     const hours =
-        Math.round(
-            minutes / 60
-        );
+        Math.round(minutes / 60);
 
 
     if (hours < 24) {
 
-        return (
-            hours +
-            " hour(s)"
-        );
+        return hours +
+            " hour(s)";
     }
 
 
-    const days =
-        Math.round(
-            hours / 24
-        );
-
-
-    return (
-        days +
-        " day(s)"
-    );
+    return Math.round(
+        hours / 24
+    ) + " day(s)";
 }
 
-
-// ========================================
-// FORMAT DATE
-// ========================================
 
 function formatDate(timestamp) {
 
     if (!timestamp) {
-
         return "Not scheduled";
     }
 
@@ -1092,17 +842,598 @@ function formatDate(timestamp) {
 
 
 // ========================================
-// SENTENCE BUTTON
+// EDITOR
+// ========================================
+
+const editorForm =
+    document.getElementById(
+        "editorForm"
+    );
+
+
+function openEditor(card = null) {
+
+    editorForm.classList.remove(
+        "hidden"
+    );
+
+
+    if (card) {
+
+        editingCardId =
+            card.id;
+
+
+        document.getElementById(
+            "wordInput"
+        ).value =
+            card.word || "";
+
+
+        document.getElementById(
+            "translationInput"
+        ).value =
+            card.translation || "";
+
+
+        document.getElementById(
+            "sentenceInput"
+        ).value =
+            card.sentence || "";
+
+
+        document.getElementById(
+            "sentenceTranslationInput"
+        ).value =
+            card.sentence_translation || "";
+
+
+        document.getElementById(
+            "tagsInput"
+        ).value =
+            (card.tags || []).join(
+                ", "
+            );
+
+    } else {
+
+        editingCardId = null;
+
+
+        clearEditor();
+
+    }
+
+
+    window.scrollTo({
+        top: 0,
+        behavior: "smooth"
+    });
+}
+
+
+function clearEditor() {
+
+    document.getElementById(
+        "wordInput"
+    ).value = "";
+
+
+    document.getElementById(
+        "translationInput"
+    ).value = "";
+
+
+    document.getElementById(
+        "sentenceInput"
+    ).value = "";
+
+
+    document.getElementById(
+        "sentenceTranslationInput"
+    ).value = "";
+
+
+    document.getElementById(
+        "tagsInput"
+    ).value = "";
+}
+
+
+function closeEditor() {
+
+    editorForm.classList.add(
+        "hidden"
+    );
+
+
+    editingCardId = null;
+
+    clearEditor();
+
+    document.getElementById(
+        "editorMessage"
+    ).textContent = "";
+}
+
+
+// ========================================
+// SAVE CARD FROM EDITOR
+// ========================================
+
+function saveCardFromEditor() {
+
+    const word =
+        document.getElementById(
+            "wordInput"
+        ).value.trim();
+
+
+    const translation =
+        document.getElementById(
+            "translationInput"
+        ).value.trim();
+
+
+    const sentence =
+        document.getElementById(
+            "sentenceInput"
+        ).value.trim();
+
+
+    const sentenceTranslation =
+        document.getElementById(
+            "sentenceTranslationInput"
+        ).value.trim();
+
+
+    const tags =
+        document.getElementById(
+            "tagsInput"
+        ).value
+        .split(",")
+        .map(
+            function(tag) {
+
+                return tag.trim();
+
+            }
+        )
+        .filter(
+            function(tag) {
+
+                return tag.length > 0;
+
+            }
+        );
+
+
+    if (!word) {
+
+        alert(
+            "Please enter a word."
+        );
+
+        return;
+    }
+
+
+    if (!translation) {
+
+        alert(
+            "Please enter a translation."
+        );
+
+        return;
+    }
+
+
+    if (editingCardId) {
+
+        const card =
+            cards.find(
+                function(c) {
+
+                    return (
+                        c.id ===
+                        editingCardId
+                    );
+
+                }
+            );
+
+
+        if (card) {
+
+            card.word =
+                word;
+
+            card.translation =
+                translation;
+
+            card.sentence =
+                sentence;
+
+            card.sentence_translation =
+                sentenceTranslation;
+
+            card.tags =
+                tags;
+
+        }
+
+    } else {
+
+        const newCard = {
+
+            id:
+                createCardId(),
+
+            word:
+                word,
+
+            translation:
+                translation,
+
+            sentence:
+                sentence,
+
+            sentence_translation:
+                sentenceTranslation,
+
+            tags:
+                tags
+
+        };
+
+
+        cards.push(
+            newCard
+        );
+    }
+
+
+    saveCards();
+
+
+    createTagButtons();
+
+    renderCardManager();
+
+    closeEditor();
+
+    showNextCard();
+}
+
+
+// ========================================
+// CREATE UNIQUE ID
+// ========================================
+
+function createCardId() {
+
+    let id;
+
+
+    do {
+
+        id =
+            "card_" +
+            Date.now() +
+            "_" +
+            Math.random()
+                .toString(36)
+                .substring(2, 8);
+
+    } while (
+        cards.some(
+            function(card) {
+
+                return card.id === id;
+
+            }
+        )
+    );
+
+
+    return id;
+}
+
+
+// ========================================
+// CARD MANAGER
+// ========================================
+
+function renderCardManager() {
+
+    const manager =
+        document.getElementById(
+            "cardManager"
+        );
+
+
+    manager.innerHTML = "";
+
+
+    const title =
+        document.createElement(
+            "div"
+        );
+
+
+    title.className =
+        "panel-title";
+
+
+    title.textContent =
+        cards.length +
+        " card(s)";
+
+
+    manager.appendChild(
+        title
+    );
+
+
+    cards.forEach(
+        function(card) {
+
+            const item =
+                document.createElement(
+                    "div"
+                );
+
+
+            item.className =
+                "manager-card";
+
+
+            const word =
+                document.createElement(
+                    "div"
+                );
+
+
+            word.className =
+                "manager-word";
+
+
+            word.textContent =
+                card.word;
+
+
+            item.appendChild(
+                word
+            );
+
+
+            const translation =
+                document.createElement(
+                    "div"
+                );
+
+
+            translation.className =
+                "manager-translation";
+
+
+            translation.textContent =
+                card.translation;
+
+
+            item.appendChild(
+                translation
+            );
+
+
+            if (
+                card.tags &&
+                card.tags.length
+            ) {
+
+                const tags =
+                    document.createElement(
+                        "div"
+                    );
+
+
+                tags.className =
+                    "manager-tags";
+
+
+                tags.textContent =
+                    card.tags.join(
+                        " · "
+                    );
+
+
+                item.appendChild(
+                    tags
+                );
+            }
+
+
+            const buttons =
+                document.createElement(
+                    "div"
+                );
+
+
+            buttons.className =
+                "manager-buttons";
+
+
+            const edit =
+                document.createElement(
+                    "button"
+                );
+
+
+            edit.textContent =
+                "✏️ Edit";
+
+
+            edit.onclick =
+                function() {
+
+                    openEditor(card);
+
+                };
+
+
+            buttons.appendChild(
+                edit
+            );
+
+
+            const deleteButton =
+                document.createElement(
+                    "button"
+                );
+
+
+            deleteButton.textContent =
+                "🗑️ Delete";
+
+
+            deleteButton.onclick =
+                function() {
+
+                    deleteCard(card.id);
+
+                };
+
+
+            buttons.appendChild(
+                deleteButton
+            );
+
+
+            item.appendChild(
+                buttons
+            );
+
+
+            manager.appendChild(
+                item
+            );
+
+        }
+    );
+}
+
+
+// ========================================
+// DELETE CARD
+// ========================================
+
+function deleteCard(id) {
+
+    const card =
+        cards.find(
+            function(c) {
+
+                return c.id === id;
+
+            }
+        );
+
+
+    if (!card) {
+        return;
+    }
+
+
+    const confirmed =
+        confirm(
+            'Delete "' +
+            card.word +
+            '"?'
+        );
+
+
+    if (!confirmed) {
+        return;
+    }
+
+
+    cards =
+        cards.filter(
+            function(c) {
+
+                return c.id !== id;
+
+            }
+        );
+
+
+    saveCards();
+
+
+    // Remove its review history too
+
+    const progress =
+        getProgress();
+
+
+    delete progress[id];
+
+
+    saveProgress(progress);
+
+
+    createTagButtons();
+
+    renderCardManager();
+
+    showNextCard();
+}
+
+
+// ========================================
+// EDITOR BUTTONS
+// ========================================
+
+document.getElementById(
+    "addCardButton"
+).onclick =
+    function() {
+
+        openEditor();
+
+    };
+
+
+document.getElementById(
+    "saveCardButton"
+).onclick =
+    function() {
+
+        saveCardFromEditor();
+
+    };
+
+
+document.getElementById(
+    "cancelEditButton"
+).onclick =
+    function() {
+
+        closeEditor();
+
+    };
+
+
+// ========================================
+// FLASHCARD BUTTONS
 // ========================================
 
 document.getElementById(
     "sentenceButton"
-).addEventListener(
-    "click",
+).onclick =
     function() {
 
         if (!currentCard) {
-
             return;
         }
 
@@ -1113,22 +1444,15 @@ document.getElementById(
 
         updateDisplay();
 
-    }
-);
+    };
 
-
-// ========================================
-// ANSWER BUTTON
-// ========================================
 
 document.getElementById(
     "answerButton"
-).addEventListener(
-    "click",
+).onclick =
     function() {
 
         if (!currentCard) {
-
             return;
         }
 
@@ -1139,8 +1463,7 @@ document.getElementById(
 
         updateDisplay();
 
-    }
-);
+    };
 
 
 // ========================================
@@ -1149,60 +1472,51 @@ document.getElementById(
 
 document.getElementById(
     "mistakeButton"
-).addEventListener(
-    "click",
+).onclick =
     function() {
 
         reviewCard("mistake");
 
-    }
-);
+    };
 
 
 document.getElementById(
     "hardButton"
-).addEventListener(
-    "click",
+).onclick =
     function() {
 
         reviewCard("hard");
 
-    }
-);
+    };
 
 
 document.getElementById(
     "goodButton"
-).addEventListener(
-    "click",
+).onclick =
     function() {
 
         reviewCard("good");
 
-    }
-);
+    };
 
 
 document.getElementById(
     "easyButton"
-).addEventListener(
-    "click",
+).onclick =
     function() {
 
         reviewCard("easy");
 
-    }
-);
+    };
 
 
 // ========================================
-// OR / AND
+// FILTER MODE
 // ========================================
 
 document.getElementById(
     "orButton"
-).addEventListener(
-    "click",
+).onclick =
     function() {
 
         filterMode = "OR";
@@ -1224,14 +1538,12 @@ document.getElementById(
 
         showNextCard();
 
-    }
-);
+    };
 
 
 document.getElementById(
     "andButton"
-).addEventListener(
-    "click",
+).onclick =
     function() {
 
         filterMode = "AND";
@@ -1253,12 +1565,11 @@ document.getElementById(
 
         showNextCard();
 
-    }
-);
+    };
 
 
 // ========================================
-// DOWNLOAD FILE
+// DOWNLOAD
 // ========================================
 
 function downloadJSON(
@@ -1312,9 +1623,7 @@ function downloadJSON(
     link.click();
 
 
-    document.body.removeChild(
-        link
-    );
+    link.remove();
 
 
     URL.revokeObjectURL(
@@ -1329,8 +1638,7 @@ function downloadJSON(
 
 document.getElementById(
     "exportCardsButton"
-).addEventListener(
-    "click",
+).onclick =
     function() {
 
         downloadJSON(
@@ -1340,8 +1648,7 @@ document.getElementById(
             }
         );
 
-    }
-);
+    };
 
 
 // ========================================
@@ -1350,8 +1657,7 @@ document.getElementById(
 
 document.getElementById(
     "exportProgressButton"
-).addEventListener(
-    "click",
+).onclick =
     function() {
 
         downloadJSON(
@@ -1359,8 +1665,7 @@ document.getElementById(
             getProgress()
         );
 
-    }
-);
+    };
 
 
 // ========================================
@@ -1369,22 +1674,19 @@ document.getElementById(
 
 document.getElementById(
     "importCardsButton"
-).addEventListener(
-    "click",
+).onclick =
     function() {
 
         document.getElementById(
             "cardsFileInput"
         ).click();
 
-    }
-);
+    };
 
 
 document.getElementById(
     "cardsFileInput"
-).addEventListener(
-    "change",
+).onchange =
     function(event) {
 
         const file =
@@ -1392,7 +1694,6 @@ document.getElementById(
 
 
         if (!file) {
-
             return;
         }
 
@@ -1439,6 +1740,8 @@ document.getElementById(
 
                     createTagButtons();
 
+                    renderCardManager();
+
                     showNextCard();
 
 
@@ -1447,7 +1750,7 @@ document.getElementById(
                     );
 
 
-                } catch (error) {
+                } catch {
 
                     alert(
                         "Could not read the flashcard file."
@@ -1460,8 +1763,7 @@ document.getElementById(
 
         reader.readAsText(file);
 
-    }
-);
+    };
 
 
 // ========================================
@@ -1470,22 +1772,19 @@ document.getElementById(
 
 document.getElementById(
     "importProgressButton"
-).addEventListener(
-    "click",
+).onclick =
     function() {
 
         document.getElementById(
             "progressFileInput"
         ).click();
 
-    }
-);
+    };
 
 
 document.getElementById(
     "progressFileInput"
-).addEventListener(
-    "change",
+).onchange =
     function(event) {
 
         const file =
@@ -1493,7 +1792,6 @@ document.getElementById(
 
 
         if (!file) {
-
             return;
         }
 
@@ -1526,9 +1824,7 @@ document.getElementById(
                     }
 
 
-                    saveProgress(
-                        data
-                    );
+                    saveProgress(data);
 
 
                     showNextCard();
@@ -1539,7 +1835,7 @@ document.getElementById(
                     );
 
 
-                } catch (error) {
+                } catch {
 
                     alert(
                         "Could not read the progress file."
@@ -1552,12 +1848,11 @@ document.getElementById(
 
         reader.readAsText(file);
 
-    }
-);
+    };
 
 
 // ========================================
-// START APP
+// START
 // ========================================
 
 loadCards();
