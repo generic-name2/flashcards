@@ -19,7 +19,7 @@
 <body>
 
     <div class="version">
-        v0.3.0
+        v0.4.0
     </div>
 
 
@@ -28,9 +28,42 @@
         <h1>My Flashcards</h1>
 
 
+        <!-- TAG FILTERS -->
+
+        <div class="filters">
+
+            <div class="filter-title">
+                Categories
+            </div>
+
+            <div id="tagButtons"
+                 class="tag-buttons">
+            </div>
+
+
+            <div class="filter-mode">
+
+                <button id="orButton"
+                        class="mode-button active">
+                    OR
+                </button>
+
+                <button id="andButton"
+                        class="mode-button">
+                    AND
+                </button>
+
+            </div>
+
+        </div>
+
+
+        <!-- CARD -->
+
         <div class="card">
 
             <!-- Question word -->
+
             <div id="word"
                  class="word">
                 Loading...
@@ -38,36 +71,42 @@
 
 
             <!-- Question sentence -->
+
             <div id="sentence"
                  class="sentence hidden">
             </div>
 
 
             <!-- Answer word -->
+
             <div id="answer"
                  class="answer hidden">
             </div>
 
 
             <!-- Answer sentence -->
+
             <div id="sentenceTranslation"
                  class="sentence-translation hidden">
             </div>
 
 
             <!-- Sentence button -->
+
             <button id="sentenceButton">
                 Show Sentence
             </button>
 
 
             <!-- Answer button -->
+
             <button id="answerButton">
                 Show Answer
             </button>
 
 
             <!-- Review buttons -->
+
             <div id="reviewButtons"
                  class="review-buttons hidden">
 
@@ -90,7 +129,8 @@
             </div>
 
 
-            <!-- Progress information -->
+            <!-- Progress -->
+
             <div id="progressInfo"
                  class="progress-info">
             </div>
@@ -98,7 +138,14 @@
         </div>
 
 
-        <!-- Developer information -->
+        <!-- STUDY INFORMATION -->
+
+        <div id="studyInfo"
+             class="study-info">
+        </div>
+
+
+        <!-- DEBUG -->
 
         <div class="debug-panel">
 
