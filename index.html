@@ -19,7 +19,7 @@
 <body>
 
     <div class="version">
-        v0.5.0
+        v0.5.1
     </div>
 
 
@@ -29,12 +29,12 @@
 
 
         <!-- ========================= -->
-        <!-- DATA MANAGEMENT -->
+        <!-- DATA -->
         <!-- ========================= -->
 
         <div class="data-panel">
 
-            <div class="filter-title">
+            <div class="panel-title">
                 My Data
             </div>
 
@@ -77,12 +77,110 @@
 
 
         <!-- ========================= -->
+        <!-- CARD EDITOR -->
+        <!-- ========================= -->
+
+        <div class="editor-panel">
+
+            <div class="panel-title">
+                Card Editor
+            </div>
+
+
+            <button id="addCardButton">
+                ＋ Add Card
+            </button>
+
+
+            <div id="editorForm"
+                 class="hidden">
+
+
+                <label>
+                    Word
+                </label>
+
+                <input
+                    id="wordInput"
+                    type="text"
+                    placeholder="coffee shop"
+                >
+
+
+                <label>
+                    Translation
+                </label>
+
+                <input
+                    id="translationInput"
+                    type="text"
+                    placeholder="cafetería"
+                >
+
+
+                <label>
+                    Sentence
+                </label>
+
+                <textarea
+                    id="sentenceInput"
+                    placeholder="I went to the coffee shop."
+                ></textarea>
+
+
+                <label>
+                    Translated sentence
+                </label>
+
+                <textarea
+                    id="sentenceTranslationInput"
+                    placeholder="Fui a la cafetería."
+                ></textarea>
+
+
+                <label>
+                    Tags
+                </label>
+
+                <input
+                    id="tagsInput"
+                    type="text"
+                    placeholder="places, food, common"
+                >
+
+
+                <div class="editor-buttons">
+
+                    <button id="saveCardButton">
+                        Save Card
+                    </button>
+
+                    <button id="cancelEditButton">
+                        Cancel
+                    </button>
+
+                </div>
+
+
+                <div id="editorMessage">
+                </div>
+
+            </div>
+
+
+            <div id="cardManager">
+            </div>
+
+        </div>
+
+
+        <!-- ========================= -->
         <!-- TAG FILTERS -->
         <!-- ========================= -->
 
         <div class="filters">
 
-            <div class="filter-title">
+            <div class="panel-title">
                 Categories
             </div>
 
@@ -110,7 +208,7 @@
 
 
         <!-- ========================= -->
-        <!-- CARD -->
+        <!-- FLASHCARD -->
         <!-- ========================= -->
 
         <div class="card">
