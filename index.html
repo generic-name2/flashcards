@@ -18,24 +18,158 @@
 
 <body>
 
+    <!-- ========================= -->
+    <!-- VERSION -->
+    <!-- ========================= -->
+
     <div class="version">
-        v0.8.0 cycling
+        v0.9.0
     </div>
 
 
     <main class="container">
 
-        <h1>My Flashcards</h1>
+
+        <!-- ========================= -->
+        <!-- FLASHCARD -->
+        <!-- ========================= -->
+
+        <div class="card">
+
+            <div id="word"
+                 class="word">
+                Loading...
+            </div>
+
+
+            <div id="sentence"
+                 class="sentence hidden">
+            </div>
+
+
+            <div id="answer"
+                 class="answer hidden">
+            </div>
+
+
+            <div id="sentenceTranslation"
+                 class="sentence-translation hidden">
+            </div>
+
+
+            <button id="sentenceButton">
+                Show Sentence
+            </button>
+
+
+            <button id="answerButton">
+                Show Answer
+            </button>
+
+
+            <div id="reviewButtons"
+                 class="review-buttons hidden">
+
+                <button id="mistakeButton"
+                        class="mistake-button">
+                    ❌ Mistake
+                </button>
+
+                <button id="hardButton"
+                        class="hard-button">
+                    😕 Hard
+                </button>
+
+                <button id="goodButton"
+                        class="good-button">
+                    🙂 Good
+                </button>
+
+                <button id="easyButton"
+                        class="easy-button">
+                    😄 Easy
+                </button>
+
+                <button id="skipButton"
+                        class="skip-button hidden">
+                    ⏭️ Skip
+                </button>
+
+            </div>
+
+
+            <!-- Normally hidden -->
+            <div id="progressInfo"
+                 class="progress-info hidden">
+            </div>
+
+        </div>
 
 
         <!-- ========================= -->
-        <!-- DATA -->
+        <!-- OPTION BAR -->
         <!-- ========================= -->
 
-        <div class="data-panel">
+        <div class="option-bar">
+
+            <button id="dataMenuButton"
+                    class="option-button"
+                    title="Data">
+                💾
+            </button>
+
+
+            <button id="cardsMenuButton"
+                    class="option-button"
+                    title="Cards">
+                ✍️
+            </button>
+
+
+            <button id="tagsMenuButton"
+                    class="option-button"
+                    title="Tags">
+                🏷️
+            </button>
+
+
+            <button id="reviewMenuButton"
+                    class="option-button"
+                    title="Review">
+                📚
+            </button>
+
+
+            <button id="infoMenuButton"
+                    class="option-button"
+                    title="Information">
+                ℹ️
+            </button>
+
+
+            <button id="darkModeButton"
+                    class="option-button"
+                    title="Toggle dark mode">
+                🌙
+            </button>
+
+        </div>
+
+
+        <!-- ========================= -->
+        <!-- DATA PANEL -->
+        <!-- ========================= -->
+
+        <div id="dataPanel"
+             class="option-panel hidden">
 
             <div class="panel-title">
-                My Data
+                💾 Data
+            </div>
+
+
+            <div class="panel-description">
+                Back up your cards and study progress.
             </div>
 
 
@@ -55,7 +189,7 @@
             >
 
 
-            <br>
+            <hr>
 
 
             <button id="exportProgressButton">
@@ -77,13 +211,14 @@
 
 
         <!-- ========================= -->
-        <!-- CARD EDITOR -->
+        <!-- CARD MANAGEMENT -->
         <!-- ========================= -->
 
-        <div class="editor-panel">
+        <div id="cardsPanel"
+             class="option-panel hidden">
 
             <div class="panel-title">
-                Card Editor
+                ✍️ Cards
             </div>
 
 
@@ -178,10 +313,11 @@
         <!-- TAG FILTERS -->
         <!-- ========================= -->
 
-        <div class="filters">
+        <div id="tagsPanel"
+             class="option-panel hidden">
 
             <div class="panel-title">
-                Categories
+                🏷️ Categories
             </div>
 
 
@@ -208,99 +344,78 @@
 
 
         <!-- ========================= -->
-        <!-- FLASHCARD -->
+        <!-- REVIEW -->
         <!-- ========================= -->
 
-        <div class="card">
+        <div id="reviewPanel"
+             class="option-panel hidden">
 
-            <div id="word"
-                 class="word">
-                Loading...
+            <div class="panel-title">
+                📚 Review
             </div>
 
 
-            <div id="sentence"
-                 class="sentence hidden">
+            <div class="panel-description">
+                Review cards regardless of their scheduled due time.
             </div>
 
 
-            <div id="answer"
-                 class="answer hidden">
-            </div>
-
-
-            <div id="sentenceTranslation"
-                 class="sentence-translation hidden">
-            </div>
-
-
-            <button id="sentenceButton">
-                Show Sentence
+            <button id="reviewAllButton">
+                📚 Review All
             </button>
 
 
-            <button id="answerButton">
-                Show Answer
-            </button>
+            <label class="new-card-option">
+
+                <input
+                    type="checkbox"
+                    id="includeNewCardsCheckbox"
+                >
+
+                Include new cards
+
+            </label>
 
 
-            <div id="reviewButtons"
-                 class="review-buttons hidden">
-
-                <button id="mistakeButton">
-                    ❌ Mistake
-                </button>
-
-                <button id="hardButton">
-                    😕 Hard
-                </button>
-
-                <button id="goodButton">
-                    🙂 Good
-                </button>
-
-                <button id="easyButton">
-                    😄 Easy
-                </button>
-
-                <button id="skipButton" class="hidden">
-                    ⏭️Skip
-                </button>
-
-            </div>
-
-
-            <div id="progressInfo"
-                 class="progress-info">
+            <div id="reviewStatus"
+                 class="review-status">
             </div>
 
         </div>
 
 
         <!-- ========================= -->
-        <!-- STUDY INFO -->
+        <!-- INFORMATION -->
         <!-- ========================= -->
 
-        <div id="studyInfo"
-             class="study-info">
-        </div>
+        <div id="infoPanel"
+             class="option-panel hidden">
+
+            <div class="panel-title">
+                ℹ️ Information
+            </div>
 
 
-        <!-- ========================= -->
-        <!-- DEBUG -->
-        <!-- ========================= -->
+            <div id="studyInfo"
+                 class="study-info">
+            </div>
 
-        <div class="debug-panel">
+
+            <hr>
+
 
             <div class="debug-title">
                 Developer Information
             </div>
 
-            <div id="debugInfo">
+
+            <div id="debugInfo"
+                 class="debug-info">
                 Loading...
             </div>
 
         </div>
+
 
     </main>
 
