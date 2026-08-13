@@ -23,7 +23,14 @@ let studyMode = "study";
 
 let includeNewInReview = false;
 
-let previewNewCards = false;
+
+// ========================================
+// REVIEW ALL CYCLE
+// ========================================
+
+let reviewCycle = [];
+
+let reviewCyclePosition = 0;
 
 
 // ========================================
@@ -333,7 +340,6 @@ function fillLearningPool() {
     if (slots <= 0) {
 
         return;
-
     }
 
 
@@ -456,13 +462,51 @@ function showNextCard() {
 
 
 // ========================================
-// REVIEW ALL
+// SHUFFLE
 // ========================================
 
-function showNextReviewCard() {
+function shuffleArray(array) {
 
-    updateStudyInfo();
+    const result =
+        array.slice();
 
+
+    for (
+        let i =
+            result.length - 1;
+        i > 0;
+        i--
+    ) {
+
+        const j =
+            Math.floor(
+                Math.random() *
+                (i + 1)
+            );
+
+
+        const temp =
+            result[i];
+
+
+        result[i] =
+            result[j];
+
+
+        result[j] =
+            temp;
+    }
+
+
+    return result;
+}
+
+
+// ========================================
+// CREATE REVIEW CYCLE
+// ========================================
+
+function createReviewCycle() {
 
     let reviewCards =
         getStudyingCards();
@@ -480,8 +524,56 @@ function showNextReviewCard() {
     }
 
 
+    reviewCycle =
+        shuffleArray(
+            reviewCards
+        );
+
+
+    reviewCyclePosition = 0;
+}
+
+
+// ========================================
+// REVIEW ALL
+// ========================================
+
+function showNextReviewCard() {
+
+    updateStudyInfo();
+
+
+    /*
+     * If there is no cycle yet,
+     * create one.
+     */
+
     if (
-        reviewCards.length === 0
+        reviewCycle.length === 0
+    ) {
+
+        createReviewCycle();
+
+    }
+
+
+    /*
+     * If we reached the end,
+     * start a completely new cycle.
+     */
+
+    if (
+        reviewCyclePosition >=
+        reviewCycle.length
+    ) {
+
+        createReviewCycle();
+
+    }
+
+
+    if (
+        reviewCycle.length === 0
     ) {
 
         showNothingDue();
@@ -490,16 +582,54 @@ function showNextReviewCard() {
     }
 
 
-    const index =
-        Math.floor(
-            Math.random() *
-            reviewCards.length
-        );
+    const card =
+        reviewCycle[
+            reviewCyclePosition
+        ];
 
 
-    displayCard(
-        reviewCards[index]
-    );
+    reviewCyclePosition += 1;
+
+
+    /*
+     * A card may have been deleted
+     * or changed since the cycle began.
+     *
+     * If it is no longer valid for the
+     * current Review All settings,
+     * skip it and continue.
+     */
+
+    if (
+        !cardMatchesTags(card) ||
+        (
+            !isStudyingCard(card) &&
+            !(
+                includeNewInReview &&
+                isNewCard(card)
+            )
+        )
+    ) {
+
+        showNextReviewCard();
+
+        return;
+    }
+
+
+    displayCard(card);
+}
+
+
+// ========================================
+// RESET REVIEW CYCLE
+// ========================================
+
+function resetReviewCycle() {
+
+    reviewCycle = [];
+
+    reviewCyclePosition = 0;
 }
 
 
@@ -660,22 +790,36 @@ function updateDisplay() {
             : "Show Answer";
 
 
-    const isPreview =
-        currentCard &&
-        isNewCard(currentCard) &&
-        studyMode === "review" &&
-        includeNewInReview &&
-        previewNewCards;
-
+    /*
+     * Review buttons are shown whenever
+     * the answer is visible.
+     *
+     * Skip is only visible in Review All.
+     */
 
     document.getElementById(
         "reviewButtons"
     ).classList.toggle(
         "hidden",
         !answerVisible ||
-        !currentCard ||
-        isPreview
+        !currentCard
     );
+
+
+    const skipButton =
+        document.getElementById(
+            "skipButton"
+        );
+
+
+    if (skipButton) {
+
+        skipButton.classList.toggle(
+            "hidden",
+            studyMode !== "review"
+        );
+
+    }
 }
 
 
@@ -750,17 +894,14 @@ function updateStudyInfo() {
 
 
     if (
-        studyMode === "review" &&
-        includeNewInReview
+        studyMode === "review"
     ) {
 
         html +=
-            "<br>New cards included" +
-            (
-                previewNewCards
-                    ? " · Preview only"
-                    : " · Evaluation on"
-            );
+            "<br>Cycle: " +
+            reviewCyclePosition +
+            " / " +
+            reviewCycle.length;
 
     }
 
@@ -791,7 +932,9 @@ function updateProgressDisplay() {
 
 
     if (!currentCard) {
+
         return;
+
     }
 
 
@@ -812,11 +955,17 @@ function updateProgressDisplay() {
         debug.innerHTML =
             "Card ID: " +
             currentCard.id +
+
             "<br>Status: New" +
+
             "<br>Reviews: 0" +
+
             "<br>Last answer: None" +
+
             "<br>Streak: 0" +
+
             "<br>Interval: 0 minutes" +
+
             "<br>Next review: Not scheduled";
 
 
@@ -962,7 +1111,9 @@ function calculateInterval(
 function reviewCard(choice) {
 
     if (!currentCard) {
+
         return;
+
     }
 
 
@@ -975,33 +1126,16 @@ function reviewCard(choice) {
 
 
     /*
-     * A New card can be visible in
-     * Review All preview mode.
+     * New cards normally have already
+     * been activated by fillLearningPool.
      *
-     * In that mode, evaluation is disabled.
+     * If a New card is being evaluated
+     * in Review All, create its progress.
      */
 
     if (
         !progress[id]
     ) {
-
-        if (
-            studyMode === "review" &&
-            previewNewCards
-        ) {
-
-            showNextReviewCard();
-
-            return;
-        }
-
-
-        /*
-         * Normally a New card should already
-         * have been activated by fillLearningPool.
-         *
-         * This is a safety fallback.
-         */
 
         progress[id] = {
 
@@ -1028,6 +1162,7 @@ function reviewCard(choice) {
 
     /*
      * Same answer = increase streak.
+     *
      * Different answer = restart at 1.
      */
 
@@ -1063,9 +1198,7 @@ function reviewCard(choice) {
 
 
     /*
-     * Easy graduates the card from
-     * Learning into the continuing
-     * Studying pool.
+     * Easy graduates the card.
      */
 
     if (
@@ -1087,10 +1220,8 @@ function reviewCard(choice) {
 
 
     /*
-     * In normal Study mode, filling the
-     * learning pool here means that when
-     * a card graduates, a New card can
-     * immediately replace it.
+     * Normal Study mode can immediately
+     * fill an empty Learning slot.
      */
 
     if (
@@ -1103,6 +1234,33 @@ function reviewCard(choice) {
 
 
     showNextCard();
+}
+
+
+// ========================================
+// SKIP
+// ========================================
+
+function skipCard() {
+
+    if (
+        !currentCard ||
+        studyMode !== "review"
+    ) {
+
+        return;
+
+    }
+
+
+    /*
+     * Absolutely no progress is changed.
+     *
+     * The card has simply been consumed
+     * from the current Review All cycle.
+     */
+
+    showNextReviewCard();
 }
 
 
@@ -1233,6 +1391,10 @@ function createStudyControls() {
         "🧠 Study Due";
 
 
+    studyButton.id =
+        "studyModeButton";
+
+
     studyButton.onclick =
         function() {
 
@@ -1240,15 +1402,13 @@ function createStudyControls() {
                 "study";
 
 
+            resetReviewCycle();
+
             updateStudyControls();
 
             showNextCard();
 
         };
-
-
-    studyButton.id =
-        "studyModeButton";
 
 
     container.appendChild(
@@ -1268,6 +1428,10 @@ function createStudyControls() {
         "📚 Review All";
 
 
+    reviewButton.id =
+        "reviewAllButton";
+
+
     reviewButton.onclick =
         function() {
 
@@ -1275,15 +1439,13 @@ function createStudyControls() {
                 "review";
 
 
+            resetReviewCycle();
+
             updateStudyControls();
 
             showNextCard();
 
         };
-
-
-    reviewButton.id =
-        "reviewAllButton";
 
 
     container.appendChild(
@@ -1324,6 +1486,8 @@ function createStudyControls() {
                 newCheckbox.checked;
 
 
+            resetReviewCycle();
+
             updateStudyControls();
 
             showNextCard();
@@ -1345,63 +1509,6 @@ function createStudyControls() {
 
     container.appendChild(
         newLabel
-    );
-
-
-    // Preview-only checkbox
-
-    const previewLabel =
-        document.createElement(
-            "label"
-        );
-
-
-    const previewCheckbox =
-        document.createElement(
-            "input"
-        );
-
-
-    previewCheckbox.type =
-        "checkbox";
-
-
-    previewCheckbox.id =
-        "previewNewCheckbox";
-
-
-    previewCheckbox.checked =
-        previewNewCards;
-
-
-    previewCheckbox.onchange =
-        function() {
-
-            previewNewCards =
-                previewCheckbox.checked;
-
-
-            updateStudyControls();
-
-            showNextCard();
-
-        };
-
-
-    previewLabel.appendChild(
-        previewCheckbox
-    );
-
-
-    previewLabel.appendChild(
-        document.createTextNode(
-            " Preview New cards without evaluating"
-        )
-    );
-
-
-    container.appendChild(
-        previewLabel
     );
 
 
@@ -1435,12 +1542,6 @@ function updateStudyControls() {
         );
 
 
-    const previewCheckbox =
-        document.getElementById(
-            "previewNewCheckbox"
-        );
-
-
     if (!studyButton) {
 
         return;
@@ -1458,11 +1559,6 @@ function updateStudyControls() {
 
     includeCheckbox.disabled =
         studyMode !== "review";
-
-
-    previewCheckbox.disabled =
-        studyMode !== "review" ||
-        !includeNewInReview;
 
 
     updateStudyInfo();
@@ -1534,6 +1630,8 @@ function createTagButtons() {
         function() {
 
             selectedTags = [];
+
+            resetReviewCycle();
 
             updateTagButtons();
 
@@ -1610,6 +1708,8 @@ function toggleTag(tag) {
 
     }
 
+
+    resetReviewCycle();
 
     updateTagButtons();
 
@@ -2277,6 +2377,8 @@ function deleteCard(id) {
     );
 
 
+    resetReviewCycle();
+
     createTagButtons();
 
     renderCardManager();
@@ -2418,6 +2520,33 @@ document.getElementById(
 
 
 // ========================================
+// SKIP BUTTON
+// ========================================
+
+/*
+ * This button must exist in the HTML
+ * with id="skipButton".
+ */
+
+const skipButton =
+    document.getElementById(
+        "skipButton"
+    );
+
+
+if (skipButton) {
+
+    skipButton.onclick =
+        function() {
+
+            skipCard();
+
+        };
+
+}
+
+
+// ========================================
 // FILTER MODE
 // ========================================
 
@@ -2443,6 +2572,8 @@ document.getElementById(
             "active"
         );
 
+
+        resetReviewCycle();
 
         showNextCard();
 
@@ -2471,6 +2602,8 @@ document.getElementById(
             "active"
         );
 
+
+        resetReviewCycle();
 
         showNextCard();
 
@@ -2652,6 +2785,8 @@ document.getElementById(
                         [];
 
 
+                    resetReviewCycle();
+
                     createTagButtons();
 
                     renderCardManager();
@@ -2750,6 +2885,7 @@ document.getElementById(
 
                     migrateProgress();
 
+                    resetReviewCycle();
 
                     showNextCard();
 
