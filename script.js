@@ -14,6 +14,19 @@ let filterMode = "OR";
 
 
 // ========================================
+// SETTINGS
+// ========================================
+
+const LEARNING_LIMIT = 20;
+
+let studyMode = "study";
+
+let includeNewInReview = false;
+
+let previewNewCards = false;
+
+
+// ========================================
 // LOAD
 // ========================================
 
@@ -46,9 +59,13 @@ async function loadCards() {
     }
 
 
+    migrateProgress();
+
     createTagButtons();
 
     renderCardManager();
+
+    createStudyControls();
 
     showNextCard();
 }
@@ -95,106 +112,141 @@ function saveProgress(progress) {
 
 
 // ========================================
-// TAGS
+// MIGRATE OLD PROGRESS
 // ========================================
 
-function getAllTags() {
+function migrateProgress() {
 
-    const tagSet =
-        new Set();
+    const progress =
+        getProgress();
+
+    let changed = false;
 
 
-    cards.forEach(function(card) {
+    Object.keys(progress).forEach(
+        function(id) {
 
-        (card.tags || []).forEach(
-            function(tag) {
+            const p =
+                progress[id];
 
-                tagSet.add(tag);
 
+            if (!p.status) {
+
+                if (
+                    p.lastAnswer === "easy"
+                ) {
+
+                    p.status =
+                        "graduated";
+
+                } else {
+
+                    p.status =
+                        "learning";
+
+                }
+
+
+                changed = true;
             }
-        );
 
-    });
-
-
-    return Array.from(
-        tagSet
-    ).sort();
-}
-
-
-function createTagButtons() {
-
-    const container =
-        document.getElementById(
-            "tagButtons"
-        );
-
-
-    container.innerHTML = "";
-
-
-    const allButton =
-        document.createElement(
-            "button"
-        );
-
-
-    allButton.textContent = "All";
-
-    allButton.className =
-        "tag-button selected";
-
-    allButton.id =
-        "allTagButton";
-
-
-    allButton.onclick =
-        function() {
-
-            selectedTags = [];
-
-            updateTagButtons();
-
-            showNextCard();
-
-        };
-
-
-    container.appendChild(
-        allButton
+        }
     );
 
 
-    getAllTags().forEach(
-        function(tag) {
+    if (changed) {
 
-            const button =
-                document.createElement(
-                    "button"
-                );
+        saveProgress(progress);
 
-
-            button.textContent =
-                tag;
-
-            button.className =
-                "tag-button";
-
-            button.dataset.tag =
-                tag;
+    }
+}
 
 
-            button.onclick =
-                function() {
+// ========================================
+// CARD STATUS
+// ========================================
 
-                    toggleTag(tag);
+function getCardStatus(card) {
 
-                };
+    const progress =
+        getProgress();
 
 
-            container.appendChild(
-                button
+    const p =
+        progress[card.id];
+
+
+    if (!p) {
+
+        return "new";
+    }
+
+
+    if (
+        p.status === "graduated" ||
+        p.lastAnswer === "easy"
+    ) {
+
+        return "graduated";
+    }
+
+
+    return "learning";
+}
+
+
+function isLearningCard(card) {
+
+    return (
+        getCardStatus(card) ===
+        "learning"
+    );
+}
+
+
+function isGraduatedCard(card) {
+
+    return (
+        getCardStatus(card) ===
+        "graduated"
+    );
+}
+
+
+function isStudyingCard(card) {
+
+    const status =
+        getCardStatus(card);
+
+
+    return (
+        status === "learning" ||
+        status === "graduated"
+    );
+}
+
+
+function isNewCard(card) {
+
+    return (
+        getCardStatus(card) ===
+        "new"
+    );
+}
+
+
+// ========================================
+// POOLS
+// ========================================
+
+function getLearningCards() {
+
+    return cards.filter(
+        function(card) {
+
+            return (
+                cardMatchesTags(card) &&
+                isLearningCard(card)
             );
 
         }
@@ -202,147 +254,15 @@ function createTagButtons() {
 }
 
 
-function toggleTag(tag) {
-
-    const index =
-        selectedTags.indexOf(tag);
-
-
-    if (index === -1) {
-
-        selectedTags.push(tag);
-
-    } else {
-
-        selectedTags.splice(
-            index,
-            1
-        );
-
-    }
-
-
-    updateTagButtons();
-
-    showNextCard();
-}
-
-
-function updateTagButtons() {
-
-    const allButton =
-        document.getElementById(
-            "allTagButton"
-        );
-
-
-    allButton.classList.toggle(
-        "selected",
-        selectedTags.length === 0
-    );
-
-
-    document
-        .querySelectorAll(
-            ".tag-button"
-        )
-        .forEach(
-            function(button) {
-
-                const tag =
-                    button.dataset.tag;
-
-
-                if (!tag) {
-                    return;
-                }
-
-
-                button.classList.toggle(
-                    "selected",
-                    selectedTags.includes(tag)
-                );
-
-            }
-        );
-}
-
-
-// ========================================
-// FILTER
-// ========================================
-
-function cardMatchesTags(card) {
-
-    if (
-        selectedTags.length === 0
-    ) {
-
-        return true;
-    }
-
-
-    const tags =
-        card.tags || [];
-
-
-    if (filterMode === "OR") {
-
-        return selectedTags.some(
-            function(tag) {
-
-                return tags.includes(tag);
-
-            }
-        );
-    }
-
-
-    return selectedTags.every(
-        function(tag) {
-
-            return tags.includes(tag);
-
-        }
-    );
-}
-
-
-// ========================================
-// SCHEDULER
-// ========================================
-
-function getAvailableCards() {
-
-    const progress =
-        getProgress();
-
-    const now =
-        Date.now();
-
+function getStudyingCards() {
 
     return cards.filter(
         function(card) {
 
-            if (
-                !cardMatchesTags(card)
-            ) {
-
-                return false;
-            }
-
-
-            const p =
-                progress[card.id];
-
-
-            if (!p) {
-
-                return true;
-            }
-
-
-            return p.due <= now;
+            return (
+                cardMatchesTags(card) &&
+                isStudyingCard(card)
+            );
 
         }
     );
@@ -351,16 +271,12 @@ function getAvailableCards() {
 
 function getNewCards() {
 
-    const progress =
-        getProgress();
-
-
     return cards.filter(
         function(card) {
 
             return (
                 cardMatchesTags(card) &&
-                !progress[card.id]
+                isNewCard(card)
             );
 
         }
@@ -377,21 +293,116 @@ function getDueCards() {
         Date.now();
 
 
-    return cards.filter(
-        function(card) {
+    return getStudyingCards()
+        .filter(
+            function(card) {
 
-            const p =
-                progress[card.id];
+                const p =
+                    progress[card.id];
 
 
-            return (
-                cardMatchesTags(card) &&
-                p &&
-                p.due <= now
-            );
+                return (
+                    p &&
+                    p.due <= now
+                );
 
-        }
-    );
+            }
+        );
+}
+
+
+// ========================================
+// FILL LEARNING POOL
+// ========================================
+
+function fillLearningPool() {
+
+    const progress =
+        getProgress();
+
+
+    const learningCards =
+        getLearningCards();
+
+
+    let slots =
+        LEARNING_LIMIT -
+        learningCards.length;
+
+
+    if (slots <= 0) {
+
+        return;
+
+    }
+
+
+    const newCards =
+        getNewCards();
+
+
+    for (
+        let i = 0;
+        i < slots &&
+        i < newCards.length;
+        i++
+    ) {
+
+        const card =
+            newCards[i];
+
+
+        progress[card.id] = {
+
+            interval: 0,
+
+            repetitions: 0,
+
+            lastAnswer: null,
+
+            streak: 0,
+
+            due: Date.now(),
+
+            status: "learning"
+
+        };
+
+    }
+
+
+    saveProgress(progress);
+}
+
+
+// ========================================
+// AVAILABLE CARDS
+// ========================================
+
+function getAvailableCards() {
+
+    const progress =
+        getProgress();
+
+    const now =
+        Date.now();
+
+
+    return getStudyingCards()
+        .filter(
+            function(card) {
+
+                const p =
+                    progress[card.id];
+
+
+                return (
+                    p &&
+                    p.due <= now
+                );
+
+            }
+        );
 }
 
 
@@ -401,15 +412,76 @@ function getDueCards() {
 
 function showNextCard() {
 
+    if (
+        studyMode === "study"
+    ) {
+
+        fillLearningPool();
+
+        updateStudyInfo();
+
+
+        const available =
+            getAvailableCards();
+
+
+        if (
+            available.length === 0
+        ) {
+
+            showNothingDue();
+
+            return;
+        }
+
+
+        const index =
+            Math.floor(
+                Math.random() *
+                available.length
+            );
+
+
+        displayCard(
+            available[index]
+        );
+
+
+        return;
+    }
+
+
+    showNextReviewCard();
+}
+
+
+// ========================================
+// REVIEW ALL
+// ========================================
+
+function showNextReviewCard() {
+
     updateStudyInfo();
 
 
-    const available =
-        getAvailableCards();
+    let reviewCards =
+        getStudyingCards();
 
 
     if (
-        available.length === 0
+        includeNewInReview
+    ) {
+
+        reviewCards =
+            reviewCards.concat(
+                getNewCards()
+            );
+
+    }
+
+
+    if (
+        reviewCards.length === 0
     ) {
 
         showNothingDue();
@@ -421,12 +493,12 @@ function showNextCard() {
     const index =
         Math.floor(
             Math.random() *
-            available.length
+            reviewCards.length
         );
 
 
     displayCard(
-        available[index]
+        reviewCards[index]
     );
 }
 
@@ -483,6 +555,10 @@ function displayCard(card) {
 }
 
 
+// ========================================
+// NOTHING DUE
+// ========================================
+
 function showNothingDue() {
 
     currentCard = null;
@@ -491,7 +567,9 @@ function showNothingDue() {
     document.getElementById(
         "word"
     ).textContent =
-        "Nothing due right now";
+        studyMode === "study"
+            ? "Nothing due right now"
+            : "No cards to review";
 
 
     document.getElementById(
@@ -525,6 +603,11 @@ function showNothingDue() {
 
         }
     );
+
+
+    document.getElementById(
+        "progressInfo"
+    ).innerHTML = "";
 }
 
 
@@ -577,11 +660,21 @@ function updateDisplay() {
             : "Show Answer";
 
 
+    const isPreview =
+        currentCard &&
+        isNewCard(currentCard) &&
+        studyMode === "review" &&
+        includeNewInReview &&
+        previewNewCards;
+
+
     document.getElementById(
         "reviewButtons"
     ).classList.toggle(
         "hidden",
-        !answerVisible || !currentCard
+        !answerVisible ||
+        !currentCard ||
+        isPreview
     );
 }
 
@@ -610,22 +703,72 @@ function updateStudyInfo() {
     }
 
 
+    const learningCount =
+        getLearningCards().length;
+
+
+    const studyingCount =
+        getStudyingCards().length;
+
+
+    const newCount =
+        getNewCards().length;
+
+
+    const dueCount =
+        getDueCards().length;
+
+
+    let modeText =
+        studyMode === "study"
+            ? "Study"
+            : "Review All";
+
+
+    let html =
+
+        "<strong>" +
+        modeText +
+        "</strong><br>" +
+
+        filterText +
+        "<br>" +
+
+        "Learning: " +
+        learningCount +
+        " / " +
+        LEARNING_LIMIT +
+
+        " · Studying: " +
+        studyingCount +
+
+        " · New: " +
+        newCount +
+
+        " · Due: " +
+        dueCount;
+
+
+    if (
+        studyMode === "review" &&
+        includeNewInReview
+    ) {
+
+        html +=
+            "<br>New cards included" +
+            (
+                previewNewCards
+                    ? " · Preview only"
+                    : " · Evaluation on"
+            );
+
+    }
+
+
     document.getElementById(
         "studyInfo"
     ).innerHTML =
-
-        "<strong>" +
-        filterText +
-        "</strong><br>" +
-
-        "New: " +
-        getNewCards().length +
-
-        " · Due: " +
-        getDueCards().length +
-
-        " · Available: " +
-        getAvailableCards().length;
+        html;
 }
 
 
@@ -669,6 +812,7 @@ function updateProgressDisplay() {
         debug.innerHTML =
             "Card ID: " +
             currentCard.id +
+            "<br>Status: New" +
             "<br>Reviews: 0" +
             "<br>Last answer: None" +
             "<br>Streak: 0" +
@@ -680,7 +824,17 @@ function updateProgressDisplay() {
     }
 
 
+    const status =
+        p.status === "graduated"
+            ? "Graduated / Studying"
+            : "Learning";
+
+
     info.innerHTML =
+
+        "Status: <strong>" +
+        status +
+        "</strong><br>" +
 
         "Last answer: <strong>" +
         p.lastAnswer +
@@ -700,6 +854,9 @@ function updateProgressDisplay() {
         "Card ID: " +
         currentCard.id +
 
+        "<br>Status: " +
+        status +
+
         "<br>Reviews: " +
         p.repetitions +
 
@@ -718,7 +875,7 @@ function updateProgressDisplay() {
 
 
 // ========================================
-// NEW SRS
+// SRS
 // ========================================
 
 function calculateInterval(
@@ -726,16 +883,18 @@ function calculateInterval(
     streak
 ) {
 
-    // MISTAKE
-    if (answer === "mistake") {
+    if (
+        answer === "mistake"
+    ) {
 
         return 0;
 
     }
 
 
-    // HARD
-    if (answer === "hard") {
+    if (
+        answer === "hard"
+    ) {
 
         const effectiveStreak =
             Math.min(
@@ -754,8 +913,9 @@ function calculateInterval(
     }
 
 
-    // GOOD
-    if (answer === "good") {
+    if (
+        answer === "good"
+    ) {
 
         const effectiveStreak =
             Math.min(
@@ -775,8 +935,9 @@ function calculateInterval(
     }
 
 
-    // EASY
-    if (answer === "easy") {
+    if (
+        answer === "easy"
+    ) {
 
         return (
             streak *
@@ -813,7 +974,34 @@ function reviewCard(choice) {
         currentCard.id;
 
 
-    if (!progress[id]) {
+    /*
+     * A New card can be visible in
+     * Review All preview mode.
+     *
+     * In that mode, evaluation is disabled.
+     */
+
+    if (
+        !progress[id]
+    ) {
+
+        if (
+            studyMode === "review" &&
+            previewNewCards
+        ) {
+
+            showNextReviewCard();
+
+            return;
+        }
+
+
+        /*
+         * Normally a New card should already
+         * have been activated by fillLearningPool.
+         *
+         * This is a safety fallback.
+         */
 
         progress[id] = {
 
@@ -825,7 +1013,9 @@ function reviewCard(choice) {
 
             streak: 0,
 
-            due: null
+            due: Date.now(),
+
+            status: "learning"
 
         };
 
@@ -836,8 +1026,10 @@ function reviewCard(choice) {
         progress[id];
 
 
-    // Same answer → increase streak.
-    // Different answer → restart at 1.
+    /*
+     * Same answer = increase streak.
+     * Different answer = restart at 1.
+     */
 
     if (
         p.lastAnswer === choice
@@ -870,7 +1062,44 @@ function reviewCard(choice) {
         p.interval;
 
 
+    /*
+     * Easy graduates the card from
+     * Learning into the continuing
+     * Studying pool.
+     */
+
+    if (
+        choice === "easy"
+    ) {
+
+        p.status =
+            "graduated";
+
+    } else {
+
+        p.status =
+            "learning";
+
+    }
+
+
     saveProgress(progress);
+
+
+    /*
+     * In normal Study mode, filling the
+     * learning pool here means that when
+     * a card graduates, a New card can
+     * immediately replace it.
+     */
+
+    if (
+        studyMode === "study"
+    ) {
+
+        fillLearningPool();
+
+    }
 
 
     showNextCard();
@@ -889,12 +1118,15 @@ function formatInterval(ms) {
         );
 
 
-    if (minutes < 60) {
+    if (
+        minutes < 60
+    ) {
 
         return (
             minutes +
             " minute(s)"
         );
+
     }
 
 
@@ -904,12 +1136,15 @@ function formatInterval(ms) {
         );
 
 
-    if (hours < 24) {
+    if (
+        hours < 24
+    ) {
 
         return (
             hours +
             " hour(s)"
         );
+
     }
 
 
@@ -925,13 +1160,552 @@ function formatInterval(ms) {
 function formatDate(timestamp) {
 
     if (!timestamp) {
+
         return "Not scheduled";
+
     }
 
 
     return new Date(
         timestamp
     ).toLocaleString();
+}
+
+
+// ========================================
+// STUDY CONTROLS
+// ========================================
+
+function createStudyControls() {
+
+    if (
+        document.getElementById(
+            "studyControls"
+        )
+    ) {
+
+        return;
+
+    }
+
+
+    const studyInfo =
+        document.getElementById(
+            "studyInfo"
+        );
+
+
+    const container =
+        document.createElement(
+            "div"
+        );
+
+
+    container.id =
+        "studyControls";
+
+
+    container.style.marginTop =
+        "12px";
+
+
+    container.style.display =
+        "flex";
+
+
+    container.style.flexDirection =
+        "column";
+
+
+    container.style.gap =
+        "8px";
+
+
+    // Study button
+
+    const studyButton =
+        document.createElement(
+            "button"
+        );
+
+
+    studyButton.textContent =
+        "🧠 Study Due";
+
+
+    studyButton.onclick =
+        function() {
+
+            studyMode =
+                "study";
+
+
+            updateStudyControls();
+
+            showNextCard();
+
+        };
+
+
+    studyButton.id =
+        "studyModeButton";
+
+
+    container.appendChild(
+        studyButton
+    );
+
+
+    // Review All button
+
+    const reviewButton =
+        document.createElement(
+            "button"
+        );
+
+
+    reviewButton.textContent =
+        "📚 Review All";
+
+
+    reviewButton.onclick =
+        function() {
+
+            studyMode =
+                "review";
+
+
+            updateStudyControls();
+
+            showNextCard();
+
+        };
+
+
+    reviewButton.id =
+        "reviewAllButton";
+
+
+    container.appendChild(
+        reviewButton
+    );
+
+
+    // Include New checkbox
+
+    const newLabel =
+        document.createElement(
+            "label"
+        );
+
+
+    const newCheckbox =
+        document.createElement(
+            "input"
+        );
+
+
+    newCheckbox.type =
+        "checkbox";
+
+
+    newCheckbox.id =
+        "includeNewCheckbox";
+
+
+    newCheckbox.checked =
+        includeNewInReview;
+
+
+    newCheckbox.onchange =
+        function() {
+
+            includeNewInReview =
+                newCheckbox.checked;
+
+
+            updateStudyControls();
+
+            showNextCard();
+
+        };
+
+
+    newLabel.appendChild(
+        newCheckbox
+    );
+
+
+    newLabel.appendChild(
+        document.createTextNode(
+            " Include New cards in Review All"
+        )
+    );
+
+
+    container.appendChild(
+        newLabel
+    );
+
+
+    // Preview-only checkbox
+
+    const previewLabel =
+        document.createElement(
+            "label"
+        );
+
+
+    const previewCheckbox =
+        document.createElement(
+            "input"
+        );
+
+
+    previewCheckbox.type =
+        "checkbox";
+
+
+    previewCheckbox.id =
+        "previewNewCheckbox";
+
+
+    previewCheckbox.checked =
+        previewNewCards;
+
+
+    previewCheckbox.onchange =
+        function() {
+
+            previewNewCards =
+                previewCheckbox.checked;
+
+
+            updateStudyControls();
+
+            showNextCard();
+
+        };
+
+
+    previewLabel.appendChild(
+        previewCheckbox
+    );
+
+
+    previewLabel.appendChild(
+        document.createTextNode(
+            " Preview New cards without evaluating"
+        )
+    );
+
+
+    container.appendChild(
+        previewLabel
+    );
+
+
+    studyInfo.parentNode.insertBefore(
+        container,
+        studyInfo.nextSibling
+    );
+
+
+    updateStudyControls();
+}
+
+
+function updateStudyControls() {
+
+    const studyButton =
+        document.getElementById(
+            "studyModeButton"
+        );
+
+
+    const reviewButton =
+        document.getElementById(
+            "reviewAllButton"
+        );
+
+
+    const includeCheckbox =
+        document.getElementById(
+            "includeNewCheckbox"
+        );
+
+
+    const previewCheckbox =
+        document.getElementById(
+            "previewNewCheckbox"
+        );
+
+
+    if (!studyButton) {
+
+        return;
+
+    }
+
+
+    studyButton.disabled =
+        studyMode === "study";
+
+
+    reviewButton.disabled =
+        studyMode === "review";
+
+
+    includeCheckbox.disabled =
+        studyMode !== "review";
+
+
+    previewCheckbox.disabled =
+        studyMode !== "review" ||
+        !includeNewInReview;
+
+
+    updateStudyInfo();
+}
+
+
+// ========================================
+// TAGS
+// ========================================
+
+function getAllTags() {
+
+    const tagSet =
+        new Set();
+
+
+    cards.forEach(
+        function(card) {
+
+            (card.tags || [])
+                .forEach(
+                    function(tag) {
+
+                        tagSet.add(tag);
+
+                    }
+                );
+
+        }
+    );
+
+
+    return Array.from(
+        tagSet
+    ).sort();
+}
+
+
+function createTagButtons() {
+
+    const container =
+        document.getElementById(
+            "tagButtons"
+        );
+
+
+    container.innerHTML = "";
+
+
+    const allButton =
+        document.createElement(
+            "button"
+        );
+
+
+    allButton.textContent =
+        "All";
+
+
+    allButton.className =
+        "tag-button selected";
+
+
+    allButton.id =
+        "allTagButton";
+
+
+    allButton.onclick =
+        function() {
+
+            selectedTags = [];
+
+            updateTagButtons();
+
+            showNextCard();
+
+        };
+
+
+    container.appendChild(
+        allButton
+    );
+
+
+    getAllTags().forEach(
+        function(tag) {
+
+            const button =
+                document.createElement(
+                    "button"
+                );
+
+
+            button.textContent =
+                tag;
+
+
+            button.className =
+                "tag-button";
+
+
+            button.dataset.tag =
+                tag;
+
+
+            button.onclick =
+                function() {
+
+                    toggleTag(tag);
+
+                };
+
+
+            container.appendChild(
+                button
+            );
+
+        }
+    );
+}
+
+
+function toggleTag(tag) {
+
+    const index =
+        selectedTags.indexOf(
+            tag
+        );
+
+
+    if (
+        index === -1
+    ) {
+
+        selectedTags.push(
+            tag
+        );
+
+    } else {
+
+        selectedTags.splice(
+            index,
+            1
+        );
+
+    }
+
+
+    updateTagButtons();
+
+    showNextCard();
+}
+
+
+function updateTagButtons() {
+
+    const allButton =
+        document.getElementById(
+            "allTagButton"
+        );
+
+
+    allButton.classList.toggle(
+        "selected",
+        selectedTags.length === 0
+    );
+
+
+    document
+        .querySelectorAll(
+            ".tag-button"
+        )
+        .forEach(
+            function(button) {
+
+                const tag =
+                    button.dataset.tag;
+
+
+                if (!tag) {
+
+                    return;
+
+                }
+
+
+                button.classList.toggle(
+                    "selected",
+                    selectedTags.includes(
+                        tag
+                    )
+                );
+
+            }
+        );
+}
+
+
+// ========================================
+// FILTER
+// ========================================
+
+function cardMatchesTags(card) {
+
+    if (
+        selectedTags.length === 0
+    ) {
+
+        return true;
+
+    }
+
+
+    const tags =
+        card.tags || [];
+
+
+    if (
+        filterMode === "OR"
+    ) {
+
+        return selectedTags.some(
+            function(tag) {
+
+                return tags.includes(
+                    tag
+                );
+
+            }
+        );
+
+    }
+
+
+    return selectedTags.every(
+        function(tag) {
+
+            return tags.includes(
+                tag
+            );
+
+        }
+    );
 }
 
 
@@ -985,13 +1759,16 @@ function openEditor(card = null) {
         document.getElementById(
             "tagsInput"
         ).value =
-            (card.tags || []).join(
+            (
+                card.tags || []
+            ).join(
                 ", "
             );
 
     } else {
 
-        editingCardId = null;
+        editingCardId =
+            null;
 
 
         clearEditor();
@@ -1041,13 +1818,17 @@ function closeEditor() {
     );
 
 
-    editingCardId = null;
+    editingCardId =
+        null;
+
 
     clearEditor();
 
+
     document.getElementById(
         "editorMessage"
-    ).textContent = "";
+    ).textContent =
+        "";
 }
 
 
@@ -1109,6 +1890,7 @@ function saveCardFromEditor() {
         );
 
         return;
+
     }
 
 
@@ -1119,6 +1901,7 @@ function saveCardFromEditor() {
         );
 
         return;
+
     }
 
 
@@ -1142,14 +1925,18 @@ function saveCardFromEditor() {
             card.word =
                 word;
 
+
             card.translation =
                 translation;
+
 
             card.sentence =
                 sentence;
 
+
             card.sentence_translation =
                 sentenceTranslation;
+
 
             card.tags =
                 tags;
@@ -1184,6 +1971,7 @@ function saveCardFromEditor() {
         cards.push(
             newCard
         );
+
     }
 
 
@@ -1223,7 +2011,9 @@ function createCardId() {
         cards.some(
             function(card) {
 
-                return card.id === id;
+                return (
+                    card.id === id
+                );
 
             }
         )
@@ -1344,6 +2134,7 @@ function renderCardManager() {
                 item.appendChild(
                     tags
                 );
+
             }
 
 
@@ -1393,7 +2184,9 @@ function renderCardManager() {
             deleteButton.onclick =
                 function() {
 
-                    deleteCard(card.id);
+                    deleteCard(
+                        card.id
+                    );
 
                 };
 
@@ -1427,14 +2220,18 @@ function deleteCard(id) {
         cards.find(
             function(c) {
 
-                return c.id === id;
+                return (
+                    c.id === id
+                );
 
             }
         );
 
 
     if (!card) {
+
         return;
+
     }
 
 
@@ -1447,7 +2244,9 @@ function deleteCard(id) {
 
 
     if (!confirmed) {
+
         return;
+
     }
 
 
@@ -1455,7 +2254,9 @@ function deleteCard(id) {
         cards.filter(
             function(c) {
 
-                return c.id !== id;
+                return (
+                    c.id !== id
+                );
 
             }
         );
@@ -1471,7 +2272,9 @@ function deleteCard(id) {
     delete progress[id];
 
 
-    saveProgress(progress);
+    saveProgress(
+        progress
+    );
 
 
     createTagButtons();
@@ -1526,7 +2329,9 @@ document.getElementById(
     function() {
 
         if (!currentCard) {
+
             return;
+
         }
 
 
@@ -1545,7 +2350,9 @@ document.getElementById(
     function() {
 
         if (!currentCard) {
+
             return;
+
         }
 
 
@@ -1567,7 +2374,9 @@ document.getElementById(
 ).onclick =
     function() {
 
-        reviewCard("mistake");
+        reviewCard(
+            "mistake"
+        );
 
     };
 
@@ -1577,7 +2386,9 @@ document.getElementById(
 ).onclick =
     function() {
 
-        reviewCard("hard");
+        reviewCard(
+            "hard"
+        );
 
     };
 
@@ -1587,7 +2398,9 @@ document.getElementById(
 ).onclick =
     function() {
 
-        reviewCard("good");
+        reviewCard(
+            "good"
+        );
 
     };
 
@@ -1597,7 +2410,9 @@ document.getElementById(
 ).onclick =
     function() {
 
-        reviewCard("easy");
+        reviewCard(
+            "easy"
+        );
 
     };
 
@@ -1611,7 +2426,8 @@ document.getElementById(
 ).onclick =
     function() {
 
-        filterMode = "OR";
+        filterMode =
+            "OR";
 
 
         document.getElementById(
@@ -1638,7 +2454,8 @@ document.getElementById(
 ).onclick =
     function() {
 
-        filterMode = "AND";
+        filterMode =
+            "AND";
 
 
         document.getElementById(
@@ -1736,7 +2553,8 @@ document.getElementById(
         downloadJSON(
             "my_flashcards.json",
             {
-                cards: cards
+                cards:
+                    cards
             }
         );
 
@@ -1786,7 +2604,9 @@ document.getElementById(
 
 
         if (!file) {
+
             return;
+
         }
 
 
@@ -1817,6 +2637,7 @@ document.getElementById(
                         );
 
                         return;
+
                     }
 
 
@@ -1827,7 +2648,8 @@ document.getElementById(
                     saveCards();
 
 
-                    selectedTags = [];
+                    selectedTags =
+                        [];
 
 
                     createTagButtons();
@@ -1853,7 +2675,9 @@ document.getElementById(
             };
 
 
-        reader.readAsText(file);
+        reader.readAsText(
+            file
+        );
 
     };
 
@@ -1884,7 +2708,9 @@ document.getElementById(
 
 
         if (!file) {
+
             return;
+
         }
 
 
@@ -1913,10 +2739,16 @@ document.getElementById(
                         );
 
                         return;
+
                     }
 
 
-                    saveProgress(data);
+                    saveProgress(
+                        data
+                    );
+
+
+                    migrateProgress();
 
 
                     showNextCard();
@@ -1938,7 +2770,9 @@ document.getElementById(
             };
 
 
-        reader.readAsText(file);
+        reader.readAsText(
+            file
+        );
 
     };
 
