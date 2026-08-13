@@ -63,6 +63,7 @@ async function loadCards() {
             defaultCards;
 
         saveCards();
+
     }
 
 
@@ -74,7 +75,12 @@ async function loadCards() {
 
     createStudyControls();
 
+    createDueIndicator();
+
     showNextCard();
+
+    updateDueIndicator();
+
 }
 
 
@@ -88,6 +94,7 @@ function saveCards() {
         "flashcardCards",
         JSON.stringify(cards)
     );
+
 }
 
 
@@ -106,6 +113,7 @@ function getProgress() {
     return saved
         ? JSON.parse(saved)
         : {};
+
 }
 
 
@@ -115,6 +123,7 @@ function saveProgress(progress) {
         "flashcardProgress",
         JSON.stringify(progress)
     );
+
 }
 
 
@@ -155,6 +164,7 @@ function migrateProgress() {
 
 
                 changed = true;
+
             }
 
         }
@@ -166,6 +176,7 @@ function migrateProgress() {
         saveProgress(progress);
 
     }
+
 }
 
 
@@ -178,7 +189,6 @@ function getCardStatus(card) {
     const progress =
         getProgress();
 
-
     const p =
         progress[card.id];
 
@@ -186,6 +196,7 @@ function getCardStatus(card) {
     if (!p) {
 
         return "new";
+
     }
 
 
@@ -195,10 +206,12 @@ function getCardStatus(card) {
     ) {
 
         return "graduated";
+
     }
 
 
     return "learning";
+
 }
 
 
@@ -208,6 +221,7 @@ function isLearningCard(card) {
         getCardStatus(card) ===
         "learning"
     );
+
 }
 
 
@@ -217,6 +231,7 @@ function isGraduatedCard(card) {
         getCardStatus(card) ===
         "graduated"
     );
+
 }
 
 
@@ -230,6 +245,7 @@ function isStudyingCard(card) {
         status === "learning" ||
         status === "graduated"
     );
+
 }
 
 
@@ -239,6 +255,7 @@ function isNewCard(card) {
         getCardStatus(card) ===
         "new"
     );
+
 }
 
 
@@ -258,6 +275,7 @@ function getLearningCards() {
 
         }
     );
+
 }
 
 
@@ -273,6 +291,7 @@ function getStudyingCards() {
 
         }
     );
+
 }
 
 
@@ -288,6 +307,7 @@ function getNewCards() {
 
         }
     );
+
 }
 
 
@@ -315,6 +335,143 @@ function getDueCards() {
 
             }
         );
+
+}
+
+
+// ========================================
+// NEXT DUE
+// ========================================
+
+function getNextDueTimestamp() {
+
+    const progress =
+        getProgress();
+
+    const now =
+        Date.now();
+
+
+    let nextDue = null;
+
+
+    getStudyingCards().forEach(
+        function(card) {
+
+            const p =
+                progress[card.id];
+
+
+            if (
+                !p ||
+                !p.due ||
+                p.due <= now
+            ) {
+
+                return;
+
+            }
+
+
+            if (
+                nextDue === null ||
+                p.due < nextDue
+            ) {
+
+                nextDue =
+                    p.due;
+
+            }
+
+        }
+    );
+
+
+    return nextDue;
+
+}
+
+
+// ========================================
+// DUE INDICATOR
+// ========================================
+
+function createDueIndicator() {
+
+    if (
+        document.getElementById(
+            "dueIndicator"
+        )
+    ) {
+
+        return;
+
+    }
+
+
+    const indicator =
+        document.createElement(
+            "div"
+        );
+
+
+    indicator.id =
+        "dueIndicator";
+
+
+    indicator.textContent =
+        "Due 0";
+
+
+    indicator.style.position =
+        "fixed";
+
+    indicator.style.top =
+        "8px";
+
+    indicator.style.left =
+        "10px";
+
+    indicator.style.fontSize =
+        "12px";
+
+    indicator.style.opacity =
+        "0.65";
+
+    indicator.style.zIndex =
+        "1000";
+
+
+    document.body.appendChild(
+        indicator
+    );
+
+}
+
+
+function updateDueIndicator() {
+
+    const indicator =
+        document.getElementById(
+            "dueIndicator"
+        );
+
+
+    if (!indicator) {
+
+        return;
+
+    }
+
+
+    const dueCount =
+        getDueCards().length;
+
+
+    indicator.textContent =
+        "Due " +
+        dueCount;
+
 }
 
 
@@ -340,6 +497,7 @@ function fillLearningPool() {
     if (slots <= 0) {
 
         return;
+
     }
 
 
@@ -378,6 +536,9 @@ function fillLearningPool() {
 
 
     saveProgress(progress);
+
+    updateDueIndicator();
+
 }
 
 
@@ -409,6 +570,7 @@ function getAvailableCards() {
 
             }
         );
+
 }
 
 
@@ -426,6 +588,8 @@ function showNextCard() {
 
         updateStudyInfo();
 
+        updateDueIndicator();
+
 
         const available =
             getAvailableCards();
@@ -438,6 +602,7 @@ function showNextCard() {
             showNothingDue();
 
             return;
+
         }
 
 
@@ -454,10 +619,12 @@ function showNextCard() {
 
 
         return;
+
     }
 
 
     showNextReviewCard();
+
 }
 
 
@@ -495,10 +662,12 @@ function shuffleArray(array) {
 
         result[j] =
             temp;
+
     }
 
 
     return result;
+
 }
 
 
@@ -531,6 +700,7 @@ function createReviewCycle() {
 
 
     reviewCyclePosition = 0;
+
 }
 
 
@@ -542,11 +712,8 @@ function showNextReviewCard() {
 
     updateStudyInfo();
 
+    updateDueIndicator();
 
-    /*
-     * If there is no cycle yet,
-     * create one.
-     */
 
     if (
         reviewCycle.length === 0
@@ -556,11 +723,6 @@ function showNextReviewCard() {
 
     }
 
-
-    /*
-     * If we reached the end,
-     * start a completely new cycle.
-     */
 
     if (
         reviewCyclePosition >=
@@ -576,9 +738,10 @@ function showNextReviewCard() {
         reviewCycle.length === 0
     ) {
 
-        showNothingDue();
+        showNoCardsToReview();
 
         return;
+
     }
 
 
@@ -592,12 +755,9 @@ function showNextReviewCard() {
 
 
     /*
-     * A card may have been deleted
-     * or changed since the cycle began.
-     *
-     * If it is no longer valid for the
-     * current Review All settings,
-     * skip it and continue.
+     * A card may have been deleted,
+     * filtered out, or changed since
+     * the cycle began.
      */
 
     if (
@@ -614,10 +774,12 @@ function showNextReviewCard() {
         showNextReviewCard();
 
         return;
+
     }
 
 
     displayCard(card);
+
 }
 
 
@@ -630,6 +792,7 @@ function resetReviewCycle() {
     reviewCycle = [];
 
     reviewCyclePosition = 0;
+
 }
 
 
@@ -676,12 +839,15 @@ function displayCard(card) {
 
     updateProgressDisplay();
 
+    updateDueIndicator();
+
 
     document.getElementById(
         "reviewButtons"
     ).classList.add(
         "hidden"
     );
+
 }
 
 
@@ -694,12 +860,14 @@ function showNothingDue() {
     currentCard = null;
 
 
-    document.getElementById(
-        "word"
-    ).textContent =
-        studyMode === "study"
-            ? "Nothing due right now"
-            : "No cards to review";
+    const word =
+        document.getElementById(
+            "word"
+        );
+
+
+    word.textContent =
+        "Nothing due right now 🎉";
 
 
     document.getElementById(
@@ -737,7 +905,76 @@ function showNothingDue() {
 
     document.getElementById(
         "progressInfo"
-    ).innerHTML = "";
+    ).innerHTML =
+        "";
+
+
+    const nextDue =
+        getNextDueTimestamp();
+
+
+    if (nextDue) {
+
+        document.getElementById(
+            "progressInfo"
+        ).innerHTML =
+            "Next due: <strong>" +
+            formatDate(nextDue) +
+            "</strong>";
+
+    }
+
+
+    updateStudyInfo();
+
+    updateDueIndicator();
+
+}
+
+
+// ========================================
+// NO CARDS TO REVIEW
+// ========================================
+
+function showNoCardsToReview() {
+
+    currentCard = null;
+
+
+    document.getElementById(
+        "word"
+    ).textContent =
+        "No cards to review";
+
+
+    [
+        "sentence",
+        "answer",
+        "sentenceTranslation",
+        "reviewButtons"
+    ].forEach(
+        function(id) {
+
+            document.getElementById(
+                id
+            ).classList.add(
+                "hidden"
+            );
+
+        }
+    );
+
+
+    document.getElementById(
+        "progressInfo"
+    ).innerHTML =
+        "Add some cards to your collection.";
+
+
+    updateStudyInfo();
+
+    updateDueIndicator();
+
 }
 
 
@@ -791,10 +1028,8 @@ function updateDisplay() {
 
 
     /*
-     * Review buttons are shown whenever
-     * the answer is visible.
-     *
-     * Skip is only visible in Review All.
+     * Review buttons appear after
+     * revealing the answer.
      */
 
     document.getElementById(
@@ -820,6 +1055,7 @@ function updateDisplay() {
         );
 
     }
+
 }
 
 
@@ -828,6 +1064,19 @@ function updateDisplay() {
 // ========================================
 
 function updateStudyInfo() {
+
+    const info =
+        document.getElementById(
+            "studyInfo"
+        );
+
+
+    if (!info) {
+
+        return;
+
+    }
+
 
     let filterText =
         "All cards";
@@ -863,7 +1112,7 @@ function updateStudyInfo() {
         getDueCards().length;
 
 
-    let modeText =
+    const modeText =
         studyMode === "study"
             ? "Study"
             : "Review All";
@@ -906,10 +1155,9 @@ function updateStudyInfo() {
     }
 
 
-    document.getElementById(
-        "studyInfo"
-    ).innerHTML =
+    info.innerHTML =
         html;
+
 }
 
 
@@ -970,6 +1218,7 @@ function updateProgressDisplay() {
 
 
         return;
+
     }
 
 
@@ -1020,6 +1269,7 @@ function updateProgressDisplay() {
 
         "<br>Next review: " +
         formatDate(p.due);
+
 }
 
 
@@ -1101,6 +1351,7 @@ function calculateInterval(
 
 
     return 0;
+
 }
 
 
@@ -1126,11 +1377,8 @@ function reviewCard(choice) {
 
 
     /*
-     * New cards normally have already
-     * been activated by fillLearningPool.
-     *
-     * If a New card is being evaluated
-     * in Review All, create its progress.
+     * New cards reviewed through
+     * Review All get progress here.
      */
 
     if (
@@ -1161,9 +1409,8 @@ function reviewCard(choice) {
 
 
     /*
-     * Same answer = increase streak.
-     *
-     * Different answer = restart at 1.
+     * Same answer increases streak.
+     * Different answer resets it to 1.
      */
 
     if (
@@ -1219,11 +1466,6 @@ function reviewCard(choice) {
     saveProgress(progress);
 
 
-    /*
-     * Normal Study mode can immediately
-     * fill an empty Learning slot.
-     */
-
     if (
         studyMode === "study"
     ) {
@@ -1233,7 +1475,10 @@ function reviewCard(choice) {
     }
 
 
+    updateDueIndicator();
+
     showNextCard();
+
 }
 
 
@@ -1254,13 +1499,11 @@ function skipCard() {
 
 
     /*
-     * Absolutely no progress is changed.
-     *
-     * The card has simply been consumed
-     * from the current Review All cycle.
+     * Skip changes absolutely nothing.
      */
 
     showNextReviewCard();
+
 }
 
 
@@ -1312,6 +1555,7 @@ function formatInterval(ms) {
         ) +
         " day(s)"
     );
+
 }
 
 
@@ -1327,6 +1571,7 @@ function formatDate(timestamp) {
     return new Date(
         timestamp
     ).toLocaleString();
+
 }
 
 
@@ -1347,6 +1592,21 @@ function createStudyControls() {
     }
 
 
+    /*
+     * The controls now belong inside
+     * the 📚 Review All menu/panel.
+     *
+     * If the new UI contains reviewPanel,
+     * use it. Otherwise fall back to the
+     * old studyInfo location.
+     */
+
+    const reviewPanel =
+        document.getElementById(
+            "reviewPanel"
+        );
+
+
     const studyInfo =
         document.getElementById(
             "studyInfo"
@@ -1363,10 +1623,6 @@ function createStudyControls() {
         "studyControls";
 
 
-    container.style.marginTop =
-        "12px";
-
-
     container.style.display =
         "flex";
 
@@ -1379,7 +1635,9 @@ function createStudyControls() {
         "8px";
 
 
-    // Study button
+    /*
+     * Study Due
+     */
 
     const studyButton =
         document.createElement(
@@ -1416,7 +1674,9 @@ function createStudyControls() {
     );
 
 
-    // Review All button
+    /*
+     * Review All
+     */
 
     const reviewButton =
         document.createElement(
@@ -1453,7 +1713,9 @@ function createStudyControls() {
     );
 
 
-    // Include New checkbox
+    /*
+     * Include New
+     */
 
     const newLabel =
         document.createElement(
@@ -1512,15 +1774,39 @@ function createStudyControls() {
     );
 
 
-    studyInfo.parentNode.insertBefore(
-        container,
-        studyInfo.nextSibling
-    );
+    /*
+     * Put the controls inside 📚.
+     */
+
+    if (reviewPanel) {
+
+        reviewPanel.appendChild(
+            container
+        );
+
+    } else if (studyInfo) {
+
+        /*
+         * Compatibility fallback for
+         * older HTML.
+         */
+
+        studyInfo.parentNode.insertBefore(
+            container,
+            studyInfo.nextSibling
+        );
+
+    }
 
 
     updateStudyControls();
+
 }
 
+
+// ========================================
+// UPDATE STUDY CONTROLS
+// ========================================
 
 function updateStudyControls() {
 
@@ -1562,6 +1848,7 @@ function updateStudyControls() {
 
 
     updateStudyInfo();
+
 }
 
 
@@ -1594,6 +1881,7 @@ function getAllTags() {
     return Array.from(
         tagSet
     ).sort();
+
 }
 
 
@@ -1603,6 +1891,13 @@ function createTagButtons() {
         document.getElementById(
             "tagButtons"
         );
+
+
+    if (!container) {
+
+        return;
+
+    }
 
 
     container.innerHTML = "";
@@ -1680,6 +1975,7 @@ function createTagButtons() {
 
         }
     );
+
 }
 
 
@@ -1714,6 +2010,7 @@ function toggleTag(tag) {
     updateTagButtons();
 
     showNextCard();
+
 }
 
 
@@ -1723,6 +2020,13 @@ function updateTagButtons() {
         document.getElementById(
             "allTagButton"
         );
+
+
+    if (!allButton) {
+
+        return;
+
+    }
 
 
     allButton.classList.toggle(
@@ -1758,6 +2062,7 @@ function updateTagButtons() {
 
             }
         );
+
 }
 
 
@@ -1806,6 +2111,7 @@ function cardMatchesTags(card) {
 
         }
     );
+
 }
 
 
@@ -1880,6 +2186,7 @@ function openEditor(card = null) {
         top: 0,
         behavior: "smooth"
     });
+
 }
 
 
@@ -1908,6 +2215,7 @@ function clearEditor() {
     document.getElementById(
         "tagsInput"
     ).value = "";
+
 }
 
 
@@ -1929,6 +2237,7 @@ function closeEditor() {
         "editorMessage"
     ).textContent =
         "";
+
 }
 
 
@@ -2077,14 +2386,16 @@ function saveCardFromEditor() {
 
     saveCards();
 
-
     createTagButtons();
 
     renderCardManager();
 
     closeEditor();
 
+    resetReviewCycle();
+
     showNextCard();
+
 }
 
 
@@ -2121,6 +2432,7 @@ function createCardId() {
 
 
     return id;
+
 }
 
 
@@ -2134,6 +2446,13 @@ function renderCardManager() {
         document.getElementById(
             "cardManager"
         );
+
+
+    if (!manager) {
+
+        return;
+
+    }
 
 
     manager.innerHTML = "";
@@ -2307,6 +2626,7 @@ function renderCardManager() {
 
         }
     );
+
 }
 
 
@@ -2384,6 +2704,7 @@ function deleteCard(id) {
     renderCardManager();
 
     showNextCard();
+
 }
 
 
@@ -2522,11 +2843,6 @@ document.getElementById(
 // ========================================
 // SKIP BUTTON
 // ========================================
-
-/*
- * This button must exist in the HTML
- * with id="skipButton".
- */
 
 const skipButton =
     document.getElementById(
@@ -2671,6 +2987,7 @@ function downloadJSON(
     URL.revokeObjectURL(
         url
     );
+
 }
 
 
@@ -2912,36 +3229,67 @@ document.getElementById(
 
     };
 
+
 // ========================================
 // V0.9 UI / MENUS / DARK MODE
 // ========================================
 
 const optionPanels = {
 
-    data: document.getElementById("dataPanel"),
+    data:
+        document.getElementById(
+            "dataPanel"
+        ),
 
-    cards: document.getElementById("cardsPanel"),
+    cards:
+        document.getElementById(
+            "cardsPanel"
+        ),
 
-    tags: document.getElementById("tagsPanel"),
+    tags:
+        document.getElementById(
+            "tagsPanel"
+        ),
 
-    review: document.getElementById("reviewPanel"),
+    review:
+        document.getElementById(
+            "reviewPanel"
+        ),
 
-    info: document.getElementById("infoPanel")
+    info:
+        document.getElementById(
+            "infoPanel"
+        )
 
 };
 
 
 const optionButtons = {
 
-    data: document.getElementById("dataMenuButton"),
+    data:
+        document.getElementById(
+            "dataMenuButton"
+        ),
 
-    cards: document.getElementById("cardsMenuButton"),
+    cards:
+        document.getElementById(
+            "cardsMenuButton"
+        ),
 
-    tags: document.getElementById("tagsMenuButton"),
+    tags:
+        document.getElementById(
+            "tagsMenuButton"
+        ),
 
-    review: document.getElementById("reviewMenuButton"),
+    review:
+        document.getElementById(
+            "reviewMenuButton"
+        ),
 
-    info: document.getElementById("infoMenuButton")
+    info:
+        document.getElementById(
+            "infoMenuButton"
+        )
 
 };
 
@@ -2949,19 +3297,35 @@ const optionButtons = {
 let openPanel = null;
 
 
+// ========================================
+// CLOSE PANELS
+// ========================================
+
 function closeAllPanels() {
 
     Object.keys(optionPanels).forEach(
         function(name) {
 
-            optionPanels[name].classList.add(
-                "hidden"
-            );
+            if (
+                optionPanels[name]
+            ) {
+
+                optionPanels[name]
+                    .classList
+                    .add("hidden");
+
+            }
 
 
-            optionButtons[name].classList.remove(
-                "active"
-            );
+            if (
+                optionButtons[name]
+            ) {
+
+                optionButtons[name]
+                    .classList
+                    .remove("active");
+
+            }
 
         }
     );
@@ -2972,14 +3336,24 @@ function closeAllPanels() {
 }
 
 
+// ========================================
+// TOGGLE PANEL
+// ========================================
+
 function togglePanel(name) {
 
-    if (!optionPanels[name]) {
+    if (
+        !optionPanels[name]
+    ) {
+
         return;
+
     }
 
 
-    if (openPanel === name) {
+    if (
+        openPanel === name
+    ) {
 
         closeAllPanels();
 
@@ -2991,14 +3365,20 @@ function togglePanel(name) {
     closeAllPanels();
 
 
-    optionPanels[name].classList.remove(
-        "hidden"
-    );
+    optionPanels[name]
+        .classList
+        .remove("hidden");
 
 
-    optionButtons[name].classList.add(
-        "active"
-    );
+    if (
+        optionButtons[name]
+    ) {
+
+        optionButtons[name]
+            .classList
+            .add("active");
+
+    }
 
 
     openPanel = name;
@@ -3006,58 +3386,102 @@ function togglePanel(name) {
 }
 
 
-document.getElementById(
-    "dataMenuButton"
-).onclick =
-    function() {
+// ========================================
+// MENU BUTTONS
+// ========================================
 
-        togglePanel("data");
+if (
+    document.getElementById(
+        "dataMenuButton"
+    )
+) {
 
-    };
+    document.getElementById(
+        "dataMenuButton"
+    ).onclick =
+        function() {
 
+            togglePanel("data");
 
-document.getElementById(
-    "cardsMenuButton"
-).onclick =
-    function() {
+        };
 
-        togglePanel("cards");
-
-    };
-
-
-document.getElementById(
-    "tagsMenuButton"
-).onclick =
-    function() {
-
-        togglePanel("tags");
-
-    };
+}
 
 
-document.getElementById(
-    "reviewMenuButton"
-).onclick =
-    function() {
+if (
+    document.getElementById(
+        "cardsMenuButton"
+    )
+) {
 
-        togglePanel("review");
+    document.getElementById(
+        "cardsMenuButton"
+    ).onclick =
+        function() {
 
-    };
+            togglePanel("cards");
+
+        };
+
+}
 
 
-document.getElementById(
-    "infoMenuButton"
-).onclick =
-    function() {
+if (
+    document.getElementById(
+        "tagsMenuButton"
+    )
+) {
 
-        updateStudyInfo();
+    document.getElementById(
+        "tagsMenuButton"
+    ).onclick =
+        function() {
 
-        updateProgressDisplay();
+            togglePanel("tags");
 
-        togglePanel("info");
+        };
 
-    };
+}
+
+
+if (
+    document.getElementById(
+        "reviewMenuButton"
+    )
+) {
+
+    document.getElementById(
+        "reviewMenuButton"
+    ).onclick =
+        function() {
+
+            togglePanel("review");
+
+        };
+
+}
+
+
+if (
+    document.getElementById(
+        "infoMenuButton"
+    )
+) {
+
+    document.getElementById(
+        "infoMenuButton"
+    ).onclick =
+        function() {
+
+            updateStudyInfo();
+
+            updateProgressDisplay();
+
+            togglePanel("info");
+
+        };
+
+}
 
 
 // ========================================
@@ -3072,9 +3496,13 @@ function loadTheme() {
         );
 
 
-    // Dark mode is the default.
+    /*
+     * Dark mode is the default.
+     */
 
-    if (savedTheme === "light") {
+    if (
+        savedTheme === "light"
+    ) {
 
         document.body.classList.add(
             "light-mode"
@@ -3102,20 +3530,31 @@ function updateThemeButton() {
         );
 
 
+    if (!button) {
+
+        return;
+
+    }
+
+
     if (
         document.body.classList.contains(
             "light-mode"
         )
     ) {
 
-        button.textContent = "☀️";
+        button.textContent =
+            "☀️";
+
 
         button.title =
             "Switch to dark mode";
 
     } else {
 
-        button.textContent = "🌙";
+        button.textContent =
+            "🌙";
+
 
         button.title =
             "Switch to light mode";
@@ -3125,43 +3564,52 @@ function updateThemeButton() {
 }
 
 
-document.getElementById(
-    "darkModeButton"
-).onclick =
-    function() {
-
-        document.body.classList.toggle(
-            "light-mode"
-        );
+const darkModeButton =
+    document.getElementById(
+        "darkModeButton"
+    );
 
 
-        if (
-            document.body.classList.contains(
+if (darkModeButton) {
+
+    darkModeButton.onclick =
+        function() {
+
+            document.body.classList.toggle(
                 "light-mode"
-            )
-        ) {
-
-            localStorage.setItem(
-                "flashcardTheme",
-                "light"
             );
 
-        } else {
 
-            localStorage.setItem(
-                "flashcardTheme",
-                "dark"
-            );
+            if (
+                document.body.classList.contains(
+                    "light-mode"
+                )
+            ) {
 
-        }
+                localStorage.setItem(
+                    "flashcardTheme",
+                    "light"
+                );
+
+            } else {
+
+                localStorage.setItem(
+                    "flashcardTheme",
+                    "dark"
+                );
+
+            }
 
 
-        updateThemeButton();
+            updateThemeButton();
 
-    };
+        };
+
+}
 
 
 loadTheme();
+
 
 // ========================================
 // START
