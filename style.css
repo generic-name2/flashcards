@@ -1,44 +1,6 @@
-/* ================================= */
+/* ======================================== */
 /* BASE */
-/* ================================= */
-
-:root {
-
-    --background: #17191c;
-
-    --surface: #22252a;
-
-    --surface-light: #2b2f35;
-
-    --surface-hover: #343941;
-
-    --text: #e1e4e8;
-
-    --text-secondary: #aeb4bc;
-
-    --border: #3a3f47;
-
-    --accent: #5da9e9;
-
-    --accent-dark: #397db5;
-
-    --green: #55c878;
-
-    --yellow: #e4b84a;
-
-    --orange: #e28b4f;
-
-    --red: #df6262;
-
-    --shadow:
-        0 4px 18px rgba(0, 0, 0, 0.35);
-}
-
-
-* {
-    box-sizing: border-box;
-}
-
+/* ======================================== */
 
 body {
 
@@ -48,27 +10,19 @@ body {
         "Segoe UI",
         sans-serif;
 
-    background:
-        var(--background);
+    background: #242529;
 
-    color:
-        var(--text);
+    color: #dddddf;
 
     margin: 0;
 
-    padding: 25px 15px;
-
-    min-height: 100vh;
+    padding: 20px;
 
     transition:
-        background 0.25s,
-        color 0.25s;
+        background 0.2s,
+        color 0.2s;
 }
 
-
-/* ================================= */
-/* CONTAINER */
-/* ================================= */
 
 .container {
 
@@ -80,9 +34,17 @@ body {
 }
 
 
-/* ================================= */
-/* VERSION */
-/* ================================= */
+h1 {
+
+    margin-bottom: 25px;
+
+    color: #eeeeef;
+}
+
+
+/* ======================================== */
+/* FIXED INFORMATION */
+/* ======================================== */
 
 .version {
 
@@ -94,50 +56,54 @@ body {
 
     font-size: 12px;
 
-    color:
-        var(--text-secondary);
-
-    opacity: 0.65;
-
-    z-index: 10;
+    opacity: 0.5;
 }
 
 
-/* ================================= */
+.due-counter {
+
+    position: fixed;
+
+    top: 8px;
+
+    left: 10px;
+
+    font-size: 13px;
+
+    opacity: 0.7;
+
+    font-weight: 600;
+}
+
+
+/* ======================================== */
 /* FLASHCARD */
-/* ================================= */
+/* ======================================== */
 
 .card {
 
-    background:
-        var(--surface);
+    background: #303136;
 
-    border:
-        1px solid var(--border);
+    border-radius: 20px;
 
-    border-radius: 22px;
-
-    padding: 45px 20px 30px;
-
-    margin-top: 15px;
+    padding: 40px 20px;
 
     box-shadow:
-        var(--shadow);
+        0 5px 18px rgba(0, 0, 0, 0.30);
+
+    border: 1px solid #3b3d43;
 }
 
 
 .word {
 
-    font-size: 38px;
+    font-size: 36px;
 
-    font-weight: 700;
+    font-weight: bold;
 
     margin-bottom: 30px;
 
-    color:
-        var(--text);
-
-    word-wrap: break-word;
+    color: #f0f0f1;
 }
 
 
@@ -145,27 +111,23 @@ body {
 
     font-size: 22px;
 
-    line-height: 1.45;
-
     margin-top: 20px;
 
     margin-bottom: 25px;
 
-    color:
-        var(--text-secondary);
+    color: #d6d6d8;
 }
 
 
 .answer {
 
-    font-size: 31px;
+    font-size: 30px;
 
-    font-weight: 700;
+    font-weight: bold;
 
     margin-top: 25px;
 
-    color:
-        var(--accent);
+    color: #7dc7ff;
 }
 
 
@@ -175,28 +137,25 @@ body {
 
     font-style: italic;
 
-    line-height: 1.45;
-
     margin-top: 20px;
 
     margin-bottom: 30px;
 
-    color:
-        var(--text-secondary);
+    color: #c9c9cc;
 }
 
 
-/* ================================= */
-/* CARD CONTROL BUTTONS */
-/* ================================= */
+/* ======================================== */
+/* GENERAL BUTTONS */
+/* ======================================== */
 
 button {
 
-    font-size: 17px;
+    font-size: 18px;
 
-    padding: 12px 18px;
+    padding: 14px 20px;
 
-    margin: 5px;
+    margin: 6px;
 
     border: none;
 
@@ -204,11 +163,9 @@ button {
 
     cursor: pointer;
 
-    color:
-        var(--text);
+    background: #45474e;
 
-    background:
-        var(--surface-light);
+    color: #eeeeef;
 
     transition:
         background 0.15s,
@@ -216,42 +173,29 @@ button {
 }
 
 
-button:active {
-
-    transform:
-        scale(0.97);
-}
-
-
 button:hover {
 
-    background:
-        var(--surface-hover);
+    background: #555861;
 }
 
 
-#sentenceButton,
-#answerButton {
+button:active {
 
-    background:
-        var(--surface-light);
-
-    border:
-        1px solid var(--border);
+    transform: scale(0.97);
 }
 
 
-#sentenceButton:hover,
-#answerButton:hover {
+button:disabled {
 
-    background:
-        var(--surface-hover);
+    opacity: 0.45;
+
+    cursor: default;
 }
 
 
-/* ================================= */
+/* ======================================== */
 /* REVIEW BUTTONS */
-/* ================================= */
+/* ======================================== */
 
 .review-buttons {
 
@@ -259,83 +203,43 @@ button:hover {
 
     padding-top: 20px;
 
-    border-top:
-        1px solid var(--border);
+    border-top: 1px solid #484a50;
 }
 
 
-.review-buttons button {
+#mistakeButton {
 
-    min-width: 105px;
+    background: #713d42;
 }
 
 
-.mistake-button {
+#hardButton {
 
-    background:
-        #63383b;
+    background: #66583a;
 }
 
 
-.mistake-button:hover {
+#goodButton {
 
-    background:
-        #7b4145;
+    background: #3f624e;
 }
 
 
-.hard-button {
+#easyButton {
 
-    background:
-        #66522d;
+    background: #386477;
 }
 
 
-.hard-button:hover {
+#skipButton {
 
-    background:
-        #80652f;
+    background: #55575e;
 }
 
 
-.good-button {
-
-    background:
-        #285d42;
-}
-
-
-.good-button:hover {
-
-    background:
-        #347653;
-}
-
-
-.easy-button {
-
-    background:
-        #285878;
-}
-
-
-.easy-button:hover {
-
-    background:
-        #34739a;
-}
-
-
-.skip-button {
-
-    background:
-        #454b54;
-}
-
-
-/* ================================= */
+/* ======================================== */
 /* OPTION BAR */
-/* ================================= */
+/* ======================================== */
 
 .option-bar {
 
@@ -345,18 +249,17 @@ button:hover {
 
     align-items: center;
 
-    gap: 7px;
+    gap: 6px;
 
-    margin:
-        14px auto 10px;
+    margin-top: 12px;
 
-    padding: 5px;
+    margin-bottom: 12px;
 }
 
 
 .option-button {
 
-    width: 46px;
+    width: 48px;
 
     height: 44px;
 
@@ -364,141 +267,83 @@ button:hover {
 
     margin: 0;
 
-    border-radius: 13px;
+    font-size: 22px;
 
-    font-size: 21px;
-
-    background:
-        var(--surface);
+    background: #303136;
 
     border:
-        1px solid var(--border);
-
-    box-shadow:
-        0 2px 6px rgba(0,0,0,0.2);
+        1px solid #41434a;
 }
 
 
 .option-button:hover {
 
-    background:
-        var(--surface-hover);
+    background: #3d3f46;
 }
 
 
 .option-button.active {
 
-    background:
-        var(--accent-dark);
+    background: #4b4e57;
 
-    border-color:
-        var(--accent);
+    border-color: #686b75;
 }
 
 
-/* ================================= */
-/* PANELS */
-/* ================================= */
+/* ======================================== */
+/* OPTION PANELS */
+/* ======================================== */
 
 .option-panel {
 
-    background:
-        var(--surface);
+    background: #303136;
 
-    border:
-        1px solid var(--border);
+    border-radius: 16px;
 
-    border-radius: 17px;
+    padding: 15px;
 
-    padding: 18px;
-
-    margin:
-        10px 0 15px;
+    margin-bottom: 20px;
 
     box-shadow:
-        var(--shadow);
+        0 3px 12px rgba(0, 0, 0, 0.25);
 
-    text-align: center;
-
-    animation:
-        panelAppear 0.15s ease-out;
-}
-
-
-@keyframes panelAppear {
-
-    from {
-        opacity: 0;
-        transform: translateY(-4px);
-    }
-
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+    border: 1px solid #3d3f45;
 }
 
 
 .panel-title {
 
-    font-size: 19px;
-
-    font-weight: 700;
+    font-weight: bold;
 
     margin-bottom: 12px;
+
+    color: #eeeeef;
 }
 
 
-.panel-description {
-
-    color:
-        var(--text-secondary);
-
-    font-size: 14px;
-
-    line-height: 1.5;
-
-    margin-bottom: 15px;
-}
-
-
-.option-panel hr {
-
-    border: 0;
-
-    border-top:
-        1px solid var(--border);
-
-    margin:
-        15px 0;
-}
-
-
-/* ================================= */
-/* DATA */
-/* ================================= */
-
-#dataPanel button {
-
-    margin:
-        5px 3px;
-}
-
-
-/* ================================= */
+/* ======================================== */
 /* EDITOR */
-/* ================================= */
+/* ======================================== */
 
-.editor-panel {
+#cardsPanel {
+
     text-align: left;
 }
 
 
-.editor-panel label {
+#cardsPanel > button {
 
     display: block;
 
-    font-weight: 600;
+    margin: 0 auto;
+}
+
+
+#cardsPanel label {
+
+    display: block;
+
+    font-weight: bold;
 
     margin-top: 15px;
 
@@ -506,8 +351,10 @@ button:hover {
 }
 
 
-.editor-panel input,
-.editor-panel textarea {
+#cardsPanel input,
+#cardsPanel textarea {
+
+    box-sizing: border-box;
 
     width: 100%;
 
@@ -515,32 +362,20 @@ button:hover {
 
     font-size: 17px;
 
-    color:
-        var(--text);
-
-    background:
-        var(--surface-light);
-
     border:
-        1px solid var(--border);
+        1px solid #555860;
 
     border-radius: 10px;
 
     font-family: inherit;
 
-    outline: none;
+    background: #25262a;
+
+    color: #eeeeef;
 }
 
 
-.editor-panel input:focus,
-.editor-panel textarea:focus {
-
-    border-color:
-        var(--accent);
-}
-
-
-.editor-panel textarea {
+#cardsPanel textarea {
 
     min-height: 75px;
 
@@ -566,9 +401,9 @@ button:hover {
 }
 
 
-/* ================================= */
+/* ======================================== */
 /* CARD MANAGER */
-/* ================================= */
+/* ======================================== */
 
 #cardManager {
 
@@ -578,11 +413,7 @@ button:hover {
 
 .manager-card {
 
-    background:
-        var(--surface-light);
-
-    border:
-        1px solid var(--border);
+    background: #25262a;
 
     border-radius: 12px;
 
@@ -591,6 +422,8 @@ button:hover {
     margin-top: 8px;
 
     text-align: left;
+
+    border: 1px solid #393b40;
 }
 
 
@@ -606,8 +439,7 @@ button:hover {
 
     margin-top: 3px;
 
-    color:
-        var(--text-secondary);
+    color: #bfc0c4;
 }
 
 
@@ -615,8 +447,7 @@ button:hover {
 
     font-size: 13px;
 
-    color:
-        var(--text-secondary);
+    opacity: 0.7;
 
     margin-top: 5px;
 }
@@ -628,9 +459,9 @@ button:hover {
 }
 
 
-/* ================================= */
+/* ======================================== */
 /* TAGS */
-/* ================================= */
+/* ======================================== */
 
 .tag-buttons {
 
@@ -648,36 +479,29 @@ button:hover {
 
     font-size: 15px;
 
-    padding: 8px 13px;
+    padding: 9px 14px;
 
     margin: 0;
 
     border-radius: 20px;
 
-    background:
-        var(--surface-light);
-
-    border:
-        1px solid var(--border);
+    background: #44464d;
 }
 
 
 .tag-button.selected {
 
-    background:
-        var(--accent);
+    background: #2879bd;
 
-    color:
-        #101820;
-
-    border-color:
-        var(--accent);
+    color: white;
 }
 
 
 .filter-mode {
 
     margin-top: 12px;
+
+    text-align: center;
 }
 
 
@@ -686,69 +510,48 @@ button:hover {
     font-size: 14px;
 
     padding: 7px 15px;
+
+    margin: 2px;
+
+    border-radius: 10px;
+
+    background: #44464d;
 }
 
 
 .mode-button.active {
 
-    background:
-        var(--accent-dark);
+    background: #686b74;
 
-    color:
-        white;
+    color: white;
 }
 
 
-/* ================================= */
+/* ======================================== */
 /* REVIEW PANEL */
-/* ================================= */
+/* ======================================== */
 
-#reviewAllButton {
+#reviewPanel {
 
-    background:
-        var(--accent-dark);
-
-    border:
-        1px solid var(--accent);
+    text-align: center;
 }
 
 
-.new-card-option {
+.include-new {
 
     display: block;
 
-    margin-top: 14px;
-
-    color:
-        var(--text-secondary);
+    margin-top: 10px;
 
     font-size: 15px;
+
+    color: #c7c7ca;
 }
 
 
-.new-card-option input {
-
-    transform:
-        scale(1.2);
-
-    margin-right: 7px;
-}
-
-
-.review-status {
-
-    margin-top: 12px;
-
-    font-size: 14px;
-
-    color:
-        var(--text-secondary);
-}
-
-
-/* ================================= */
+/* ======================================== */
 /* INFO */
-/* ================================= */
+/* ======================================== */
 
 .study-info {
 
@@ -756,35 +559,9 @@ button:hover {
 
     line-height: 1.6;
 
-    color:
-        var(--text-secondary);
+    color: #c9c9cc;
 }
 
-
-.debug-title {
-
-    font-weight: bold;
-
-    margin-bottom: 8px;
-}
-
-
-.debug-info {
-
-    text-align: left;
-
-    font-size: 13px;
-
-    line-height: 1.6;
-
-    color:
-        var(--text-secondary);
-}
-
-
-/* ================================= */
-/* PROGRESS */
-/* ================================= */
 
 .progress-info {
 
@@ -794,102 +571,257 @@ button:hover {
 
     line-height: 1.6;
 
-    color:
-        var(--text-secondary);
+    color: #bfc0c4;
 }
 
 
-/* ================================= */
+/* ======================================== */
+/* DEBUG */
+/* ======================================== */
+
+.debug-panel {
+
+    margin-top: 20px;
+
+    padding: 15px;
+
+    background: #25262a;
+
+    border-radius: 12px;
+
+    text-align: left;
+
+    font-size: 13px;
+
+    line-height: 1.6;
+
+    color: #aaaab0;
+}
+
+
+.debug-title {
+
+    font-weight: bold;
+
+    margin-bottom: 8px;
+
+    color: #d4d4d7;
+}
+
+
+/* ======================================== */
 /* HIDDEN */
-/* ================================= */
+/* ======================================== */
 
 .hidden {
 
-    display:
-        none !important;
+    display: none !important;
 }
 
 
-/* ================================= */
+/* ======================================== */
 /* LIGHT MODE */
-/* ================================= */
+/* ======================================== */
 
 body.light-mode {
 
-    --background: #eef0f3;
+    background: #f2f2f7;
 
-    --surface: #ffffff;
-
-    --surface-light: #e4e7eb;
-
-    --surface-hover: #d9dde2;
-
-    --text: #20242a;
-
-    --text-secondary: #626a74;
-
-    --border: #cdd2d8;
-
-    --accent: #1677c8;
-
-    --accent-dark: #1265aa;
-
-    --green: #287d4b;
-
-    --yellow: #a97916;
-
-    --orange: #b35f25;
-
-    --red: #a63c3c;
+    color: #333333;
 }
 
 
-/* ================================= */
-/* SMALL SCREENS */
-/* ================================= */
+body.light-mode h1 {
 
-@media (max-width: 480px) {
+    color: #222222;
+}
+
+
+body.light-mode .card {
+
+    background: white;
+
+    border-color: transparent;
+
+    box-shadow:
+        0 4px 15px rgba(0, 0, 0, 0.10);
+}
+
+
+body.light-mode .word {
+
+    color: #222222;
+}
+
+
+body.light-mode .sentence {
+
+    color: #333333;
+}
+
+
+body.light-mode .sentence-translation {
+
+    color: #555555;
+}
+
+
+body.light-mode .option-panel {
+
+    background: white;
+
+    border-color: transparent;
+
+    box-shadow:
+        0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+
+body.light-mode .option-button {
+
+    background: #e5e5ea;
+
+    color: #333333;
+
+    border-color: transparent;
+}
+
+
+body.light-mode .option-button:hover {
+
+    background: #d8d8dd;
+}
+
+
+body.light-mode .option-button.active {
+
+    background: #c7c7cc;
+}
+
+
+body.light-mode button {
+
+    background: #e5e5ea;
+
+    color: #222222;
+}
+
+
+body.light-mode button:hover {
+
+    background: #d8d8dd;
+}
+
+
+body.light-mode #mistakeButton {
+
+    background: #e6c8cb;
+}
+
+
+body.light-mode #hardButton {
+
+    background: #e5d7b8;
+}
+
+
+body.light-mode #goodButton {
+
+    background: #c6ddcf;
+}
+
+
+body.light-mode #easyButton {
+
+    background: #c2dce8;
+}
+
+
+body.light-mode #skipButton {
+
+    background: #d6d6da;
+}
+
+
+body.light-mode #cardsPanel input,
+body.light-mode #cardsPanel textarea {
+
+    background: white;
+
+    color: #222222;
+
+    border-color: #cccccc;
+}
+
+
+body.light-mode .manager-card {
+
+    background: #f2f2f7;
+
+    border-color: transparent;
+}
+
+
+body.light-mode .tag-button {
+
+    background: #e5e5ea;
+}
+
+
+body.light-mode .tag-button.selected {
+
+    background: #007aff;
+}
+
+
+body.light-mode .mode-button {
+
+    background: #e5e5ea;
+}
+
+
+body.light-mode .mode-button.active {
+
+    background: #333333;
+}
+
+
+body.light-mode .debug-panel {
+
+    background: #e5e5ea;
+
+    color: #555555;
+}
+
+
+body.light-mode .debug-title {
+
+    color: #333333;
+}
+
+
+/* ======================================== */
+/* MOBILE */
+/* ======================================== */
+
+@media (max-width: 500px) {
 
     body {
-        padding:
-            20px 10px;
+
+        padding: 15px;
     }
 
 
     .card {
 
         padding:
-            40px 14px 25px;
+            35px 15px;
     }
 
 
     .word {
 
-        font-size: 34px;
-    }
-
-
-    .sentence,
-    .sentence-translation {
-
-        font-size: 20px;
-    }
-
-
-    .answer {
-
-        font-size: 28px;
-    }
-
-
-    .review-buttons button {
-
-        min-width: 0;
-
-        padding:
-            11px 13px;
-
-        font-size: 15px;
+        font-size: 32px;
     }
 
 
@@ -899,7 +831,7 @@ body.light-mode {
 
         height: 42px;
 
-        font-size: 19px;
+        font-size: 20px;
     }
 
 }
