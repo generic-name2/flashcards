@@ -75,12 +75,9 @@ async function loadCards() {
 
     createStudyControls();
 
-    createDueIndicator();
+    updateDueCounter();
 
     showNextCard();
-
-    updateDueIndicator();
-
 }
 
 
@@ -188,6 +185,7 @@ function getCardStatus(card) {
 
     const progress =
         getProgress();
+
 
     const p =
         progress[card.id];
@@ -340,6 +338,36 @@ function getDueCards() {
 
 
 // ========================================
+// DUE COUNTER
+// ========================================
+
+function updateDueCounter() {
+
+    const counter =
+        document.getElementById(
+            "dueCounter"
+        );
+
+
+    if (!counter) {
+
+        return;
+
+    }
+
+
+    const dueCount =
+        getDueCards().length;
+
+
+    counter.textContent =
+        "Due " +
+        dueCount;
+
+}
+
+
+// ========================================
 // NEXT DUE
 // ========================================
 
@@ -351,22 +379,38 @@ function getNextDueTimestamp() {
     const now =
         Date.now();
 
-
     let nextDue = null;
 
 
-    getStudyingCards().forEach(
+    cards.forEach(
         function(card) {
+
+            if (!cardMatchesTags(card)) {
+
+                return;
+
+            }
+
+
+            if (!isStudyingCard(card)) {
+
+                return;
+
+            }
+
 
             const p =
                 progress[card.id];
 
 
-            if (
-                !p ||
-                !p.due ||
-                p.due <= now
-            ) {
+            if (!p || !p.due) {
+
+                return;
+
+            }
+
+
+            if (p.due <= now) {
 
                 return;
 
@@ -388,89 +432,6 @@ function getNextDueTimestamp() {
 
 
     return nextDue;
-
-}
-
-
-// ========================================
-// DUE INDICATOR
-// ========================================
-
-function createDueIndicator() {
-
-    if (
-        document.getElementById(
-            "dueIndicator"
-        )
-    ) {
-
-        return;
-
-    }
-
-
-    const indicator =
-        document.createElement(
-            "div"
-        );
-
-
-    indicator.id =
-        "dueIndicator";
-
-
-    indicator.textContent =
-        "Due 0";
-
-
-    indicator.style.position =
-        "fixed";
-
-    indicator.style.top =
-        "8px";
-
-    indicator.style.left =
-        "10px";
-
-    indicator.style.fontSize =
-        "12px";
-
-    indicator.style.opacity =
-        "0.65";
-
-    indicator.style.zIndex =
-        "1000";
-
-
-    document.body.appendChild(
-        indicator
-    );
-
-}
-
-
-function updateDueIndicator() {
-
-    const indicator =
-        document.getElementById(
-            "dueIndicator"
-        );
-
-
-    if (!indicator) {
-
-        return;
-
-    }
-
-
-    const dueCount =
-        getDueCards().length;
-
-
-    indicator.textContent =
-        "Due " +
-        dueCount;
 
 }
 
@@ -537,8 +498,6 @@ function fillLearningPool() {
 
     saveProgress(progress);
 
-    updateDueIndicator();
-
 }
 
 
@@ -580,6 +539,9 @@ function getAvailableCards() {
 
 function showNextCard() {
 
+    updateDueCounter();
+
+
     if (
         studyMode === "study"
     ) {
@@ -587,8 +549,6 @@ function showNextCard() {
         fillLearningPool();
 
         updateStudyInfo();
-
-        updateDueIndicator();
 
 
         const available =
@@ -693,6 +653,15 @@ function createReviewCycle() {
     }
 
 
+    /*
+     * Shuffle ONCE when the cycle is
+     * created.
+     *
+     * Cards are then consumed in this
+     * order until every card has been
+     * seen exactly once.
+     */
+
     reviewCycle =
         shuffleArray(
             reviewCards
@@ -711,8 +680,6 @@ function createReviewCycle() {
 function showNextReviewCard() {
 
     updateStudyInfo();
-
-    updateDueIndicator();
 
 
     if (
@@ -738,7 +705,7 @@ function showNextReviewCard() {
         reviewCycle.length === 0
     ) {
 
-        showNoCardsToReview();
+        showNothingDue();
 
         return;
 
@@ -755,9 +722,8 @@ function showNextReviewCard() {
 
 
     /*
-     * A card may have been deleted,
-     * filtered out, or changed since
-     * the cycle began.
+     * A card may have been deleted or
+     * changed since the cycle started.
      */
 
     if (
@@ -839,7 +805,7 @@ function displayCard(card) {
 
     updateProgressDisplay();
 
-    updateDueIndicator();
+    updateDueCounter();
 
 
     document.getElementById(
@@ -866,8 +832,48 @@ function showNothingDue() {
         );
 
 
-    word.textContent =
-        "Nothing due right now 🎉";
+    const progressInfo =
+        document.getElementById(
+            "progressInfo"
+        );
+
+
+    if (
+        studyMode === "study"
+    ) {
+
+        word.textContent =
+            "Nothing due right now 🎉";
+
+
+        const nextDue =
+            getNextDueTimestamp();
+
+
+        if (nextDue) {
+
+            progressInfo.innerHTML =
+                "Next due: <strong>" +
+                formatDate(nextDue) +
+                "</strong>";
+
+        } else {
+
+            progressInfo.innerHTML =
+                "No cards currently scheduled.";
+
+        }
+
+    } else {
+
+        word.textContent =
+            "No cards to review";
+
+
+        progressInfo.innerHTML =
+            "Review All cycle complete.";
+
+    }
 
 
     document.getElementById(
@@ -903,77 +909,7 @@ function showNothingDue() {
     );
 
 
-    document.getElementById(
-        "progressInfo"
-    ).innerHTML =
-        "";
-
-
-    const nextDue =
-        getNextDueTimestamp();
-
-
-    if (nextDue) {
-
-        document.getElementById(
-            "progressInfo"
-        ).innerHTML =
-            "Next due: <strong>" +
-            formatDate(nextDue) +
-            "</strong>";
-
-    }
-
-
-    updateStudyInfo();
-
-    updateDueIndicator();
-
-}
-
-
-// ========================================
-// NO CARDS TO REVIEW
-// ========================================
-
-function showNoCardsToReview() {
-
-    currentCard = null;
-
-
-    document.getElementById(
-        "word"
-    ).textContent =
-        "No cards to review";
-
-
-    [
-        "sentence",
-        "answer",
-        "sentenceTranslation",
-        "reviewButtons"
-    ].forEach(
-        function(id) {
-
-            document.getElementById(
-                id
-            ).classList.add(
-                "hidden"
-            );
-
-        }
-    );
-
-
-    document.getElementById(
-        "progressInfo"
-    ).innerHTML =
-        "Add some cards to your collection.";
-
-
-    updateStudyInfo();
-
-    updateDueIndicator();
+    updateDueCounter();
 
 }
 
@@ -1026,11 +962,6 @@ function updateDisplay() {
             ? "Hide Answer"
             : "Show Answer";
 
-
-    /*
-     * Review buttons appear after
-     * revealing the answer.
-     */
 
     document.getElementById(
         "reviewButtons"
@@ -1148,7 +1079,10 @@ function updateStudyInfo() {
 
         html +=
             "<br>Cycle: " +
-            reviewCyclePosition +
+            Math.min(
+                reviewCyclePosition,
+                reviewCycle.length
+            ) +
             " / " +
             reviewCycle.length;
 
@@ -1356,7 +1290,7 @@ function calculateInterval(
 
 
 // ========================================
-// REVIEW
+// REVIEW CARD
 // ========================================
 
 function reviewCard(choice) {
@@ -1376,14 +1310,7 @@ function reviewCard(choice) {
         currentCard.id;
 
 
-    /*
-     * New cards reviewed through
-     * Review All get progress here.
-     */
-
-    if (
-        !progress[id]
-    ) {
+    if (!progress[id]) {
 
         progress[id] = {
 
@@ -1407,11 +1334,6 @@ function reviewCard(choice) {
     const p =
         progress[id];
 
-
-    /*
-     * Same answer increases streak.
-     * Different answer resets it to 1.
-     */
 
     if (
         p.lastAnswer === choice
@@ -1444,10 +1366,6 @@ function reviewCard(choice) {
         p.interval;
 
 
-    /*
-     * Easy graduates the card.
-     */
-
     if (
         choice === "easy"
     ) {
@@ -1475,7 +1393,7 @@ function reviewCard(choice) {
     }
 
 
-    updateDueIndicator();
+    updateDueCounter();
 
     showNextCard();
 
@@ -1499,7 +1417,8 @@ function skipCard() {
 
 
     /*
-     * Skip changes absolutely nothing.
+     * Skip deliberately changes absolutely
+     * nothing in the SRS data.
      */
 
     showNextReviewCard();
@@ -1508,7 +1427,7 @@ function skipCard() {
 
 
 // ========================================
-// FORMAT
+// FORMAT INTERVAL
 // ========================================
 
 function formatInterval(ms) {
@@ -1559,6 +1478,10 @@ function formatInterval(ms) {
 }
 
 
+// ========================================
+// FORMAT DATE
+// ========================================
+
 function formatDate(timestamp) {
 
     if (!timestamp) {
@@ -1581,76 +1504,22 @@ function formatDate(timestamp) {
 
 function createStudyControls() {
 
-    if (
-        document.getElementById(
-            "studyControls"
-        )
-    ) {
-
-        return;
-
-    }
-
-
-    /*
-     * The controls now belong inside
-     * the 📚 Review All menu/panel.
-     *
-     * If the new UI contains reviewPanel,
-     * use it. Otherwise fall back to the
-     * old studyInfo location.
-     */
-
-    const reviewPanel =
-        document.getElementById(
-            "reviewPanel"
-        );
-
-
-    const studyInfo =
-        document.getElementById(
-            "studyInfo"
-        );
-
-
-    const container =
-        document.createElement(
-            "div"
-        );
-
-
-    container.id =
-        "studyControls";
-
-
-    container.style.display =
-        "flex";
-
-
-    container.style.flexDirection =
-        "column";
-
-
-    container.style.gap =
-        "8px";
-
-
-    /*
-     * Study Due
-     */
-
     const studyButton =
-        document.createElement(
-            "button"
+        document.getElementById(
+            "studyModeButton"
         );
 
 
-    studyButton.textContent =
-        "🧠 Study Due";
+    const reviewButton =
+        document.getElementById(
+            "reviewAllButton"
+        );
 
 
-    studyButton.id =
-        "studyModeButton";
+    const checkbox =
+        document.getElementById(
+            "includeNewCheckbox"
+        );
 
 
     studyButton.onclick =
@@ -1669,29 +1538,6 @@ function createStudyControls() {
         };
 
 
-    container.appendChild(
-        studyButton
-    );
-
-
-    /*
-     * Review All
-     */
-
-    const reviewButton =
-        document.createElement(
-            "button"
-        );
-
-
-    reviewButton.textContent =
-        "📚 Review All";
-
-
-    reviewButton.id =
-        "reviewAllButton";
-
-
     reviewButton.onclick =
         function() {
 
@@ -1708,105 +1554,33 @@ function createStudyControls() {
         };
 
 
-    container.appendChild(
-        reviewButton
-    );
-
-
-    /*
-     * Include New
-     */
-
-    const newLabel =
-        document.createElement(
-            "label"
-        );
-
-
-    const newCheckbox =
-        document.createElement(
-            "input"
-        );
-
-
-    newCheckbox.type =
-        "checkbox";
-
-
-    newCheckbox.id =
-        "includeNewCheckbox";
-
-
-    newCheckbox.checked =
-        includeNewInReview;
-
-
-    newCheckbox.onchange =
+    checkbox.onchange =
         function() {
 
             includeNewInReview =
-                newCheckbox.checked;
+                checkbox.checked;
 
 
             resetReviewCycle();
 
             updateStudyControls();
 
-            showNextCard();
+
+            if (
+                studyMode === "review"
+            ) {
+
+                showNextCard();
+
+            }
 
         };
-
-
-    newLabel.appendChild(
-        newCheckbox
-    );
-
-
-    newLabel.appendChild(
-        document.createTextNode(
-            " Include New cards in Review All"
-        )
-    );
-
-
-    container.appendChild(
-        newLabel
-    );
-
-
-    /*
-     * Put the controls inside 📚.
-     */
-
-    if (reviewPanel) {
-
-        reviewPanel.appendChild(
-            container
-        );
-
-    } else if (studyInfo) {
-
-        /*
-         * Compatibility fallback for
-         * older HTML.
-         */
-
-        studyInfo.parentNode.insertBefore(
-            container,
-            studyInfo.nextSibling
-        );
-
-    }
 
 
     updateStudyControls();
 
 }
 
-
-// ========================================
-// UPDATE STUDY CONTROLS
-// ========================================
 
 function updateStudyControls() {
 
@@ -1891,13 +1665,6 @@ function createTagButtons() {
         document.getElementById(
             "tagButtons"
         );
-
-
-    if (!container) {
-
-        return;
-
-    }
 
 
     container.innerHTML = "";
@@ -2020,13 +1787,6 @@ function updateTagButtons() {
         document.getElementById(
             "allTagButton"
         );
-
-
-    if (!allButton) {
-
-        return;
-
-    }
 
 
     allButton.classList.toggle(
@@ -2334,18 +2094,14 @@ function saveCardFromEditor() {
             card.word =
                 word;
 
-
             card.translation =
                 translation;
-
 
             card.sentence =
                 sentence;
 
-
             card.sentence_translation =
                 sentenceTranslation;
-
 
             card.tags =
                 tags;
@@ -2446,13 +2202,6 @@ function renderCardManager() {
         document.getElementById(
             "cardManager"
         );
-
-
-    if (!manager) {
-
-        return;
-
-    }
 
 
     manager.innerHTML = "";
@@ -2841,7 +2590,7 @@ document.getElementById(
 
 
 // ========================================
-// SKIP BUTTON
+// SKIP
 // ========================================
 
 const skipButton =
@@ -2980,9 +2729,7 @@ function downloadJSON(
 
     link.click();
 
-
     link.remove();
-
 
     URL.revokeObjectURL(
         url
@@ -3231,7 +2978,7 @@ document.getElementById(
 
 
 // ========================================
-// V0.9 UI / MENUS / DARK MODE
+// MENUS
 // ========================================
 
 const optionPanels = {
@@ -3297,35 +3044,19 @@ const optionButtons = {
 let openPanel = null;
 
 
-// ========================================
-// CLOSE PANELS
-// ========================================
-
 function closeAllPanels() {
 
     Object.keys(optionPanels).forEach(
         function(name) {
 
-            if (
-                optionPanels[name]
-            ) {
-
-                optionPanels[name]
-                    .classList
-                    .add("hidden");
-
-            }
+            optionPanels[name].classList.add(
+                "hidden"
+            );
 
 
-            if (
-                optionButtons[name]
-            ) {
-
-                optionButtons[name]
-                    .classList
-                    .remove("active");
-
-            }
+            optionButtons[name].classList.remove(
+                "active"
+            );
 
         }
     );
@@ -3336,24 +3067,16 @@ function closeAllPanels() {
 }
 
 
-// ========================================
-// TOGGLE PANEL
-// ========================================
-
 function togglePanel(name) {
 
-    if (
-        !optionPanels[name]
-    ) {
+    if (!optionPanels[name]) {
 
         return;
 
     }
 
 
-    if (
-        openPanel === name
-    ) {
+    if (openPanel === name) {
 
         closeAllPanels();
 
@@ -3365,20 +3088,14 @@ function togglePanel(name) {
     closeAllPanels();
 
 
-    optionPanels[name]
-        .classList
-        .remove("hidden");
+    optionPanels[name].classList.remove(
+        "hidden"
+    );
 
 
-    if (
-        optionButtons[name]
-    ) {
-
-        optionButtons[name]
-            .classList
-            .add("active");
-
-    }
+    optionButtons[name].classList.add(
+        "active"
+    );
 
 
     openPanel = name;
@@ -3386,102 +3103,58 @@ function togglePanel(name) {
 }
 
 
-// ========================================
-// MENU BUTTONS
-// ========================================
+document.getElementById(
+    "dataMenuButton"
+).onclick =
+    function() {
 
-if (
-    document.getElementById(
-        "dataMenuButton"
-    )
-) {
+        togglePanel("data");
 
-    document.getElementById(
-        "dataMenuButton"
-    ).onclick =
-        function() {
-
-            togglePanel("data");
-
-        };
-
-}
+    };
 
 
-if (
-    document.getElementById(
-        "cardsMenuButton"
-    )
-) {
+document.getElementById(
+    "cardsMenuButton"
+).onclick =
+    function() {
 
-    document.getElementById(
-        "cardsMenuButton"
-    ).onclick =
-        function() {
+        togglePanel("cards");
 
-            togglePanel("cards");
-
-        };
-
-}
+    };
 
 
-if (
-    document.getElementById(
-        "tagsMenuButton"
-    )
-) {
+document.getElementById(
+    "tagsMenuButton"
+).onclick =
+    function() {
 
-    document.getElementById(
-        "tagsMenuButton"
-    ).onclick =
-        function() {
+        togglePanel("tags");
 
-            togglePanel("tags");
-
-        };
-
-}
+    };
 
 
-if (
-    document.getElementById(
-        "reviewMenuButton"
-    )
-) {
+document.getElementById(
+    "reviewMenuButton"
+).onclick =
+    function() {
 
-    document.getElementById(
-        "reviewMenuButton"
-    ).onclick =
-        function() {
+        togglePanel("review");
 
-            togglePanel("review");
-
-        };
-
-}
+    };
 
 
-if (
-    document.getElementById(
-        "infoMenuButton"
-    )
-) {
+document.getElementById(
+    "infoMenuButton"
+).onclick =
+    function() {
 
-    document.getElementById(
-        "infoMenuButton"
-    ).onclick =
-        function() {
+        updateStudyInfo();
 
-            updateStudyInfo();
+        updateProgressDisplay();
 
-            updateProgressDisplay();
+        togglePanel("info");
 
-            togglePanel("info");
-
-        };
-
-}
+    };
 
 
 // ========================================
@@ -3495,10 +3168,6 @@ function loadTheme() {
             "flashcardTheme"
         );
 
-
-    /*
-     * Dark mode is the default.
-     */
 
     if (
         savedTheme === "light"
@@ -3530,13 +3199,6 @@ function updateThemeButton() {
         );
 
 
-    if (!button) {
-
-        return;
-
-    }
-
-
     if (
         document.body.classList.contains(
             "light-mode"
@@ -3546,7 +3208,6 @@ function updateThemeButton() {
         button.textContent =
             "☀️";
 
-
         button.title =
             "Switch to dark mode";
 
@@ -3554,7 +3215,6 @@ function updateThemeButton() {
 
         button.textContent =
             "🌙";
-
 
         button.title =
             "Switch to light mode";
@@ -3564,48 +3224,40 @@ function updateThemeButton() {
 }
 
 
-const darkModeButton =
-    document.getElementById(
-        "darkModeButton"
-    );
+document.getElementById(
+    "darkModeButton"
+).onclick =
+    function() {
+
+        document.body.classList.toggle(
+            "light-mode"
+        );
 
 
-if (darkModeButton) {
-
-    darkModeButton.onclick =
-        function() {
-
-            document.body.classList.toggle(
+        if (
+            document.body.classList.contains(
                 "light-mode"
+            )
+        ) {
+
+            localStorage.setItem(
+                "flashcardTheme",
+                "light"
             );
 
+        } else {
 
-            if (
-                document.body.classList.contains(
-                    "light-mode"
-                )
-            ) {
+            localStorage.setItem(
+                "flashcardTheme",
+                "dark"
+            );
 
-                localStorage.setItem(
-                    "flashcardTheme",
-                    "light"
-                );
-
-            } else {
-
-                localStorage.setItem(
-                    "flashcardTheme",
-                    "dark"
-                );
-
-            }
+        }
 
 
-            updateThemeButton();
+        updateThemeButton();
 
-        };
-
-}
+    };
 
 
 loadTheme();
