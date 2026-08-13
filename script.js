@@ -2912,6 +2912,256 @@ document.getElementById(
 
     };
 
+// ========================================
+// V0.9 UI / MENUS / DARK MODE
+// ========================================
+
+const optionPanels = {
+
+    data: document.getElementById("dataPanel"),
+
+    cards: document.getElementById("cardsPanel"),
+
+    tags: document.getElementById("tagsPanel"),
+
+    review: document.getElementById("reviewPanel"),
+
+    info: document.getElementById("infoPanel")
+
+};
+
+
+const optionButtons = {
+
+    data: document.getElementById("dataMenuButton"),
+
+    cards: document.getElementById("cardsMenuButton"),
+
+    tags: document.getElementById("tagsMenuButton"),
+
+    review: document.getElementById("reviewMenuButton"),
+
+    info: document.getElementById("infoMenuButton")
+
+};
+
+
+let openPanel = null;
+
+
+function closeAllPanels() {
+
+    Object.keys(optionPanels).forEach(
+        function(name) {
+
+            optionPanels[name].classList.add(
+                "hidden"
+            );
+
+
+            optionButtons[name].classList.remove(
+                "active"
+            );
+
+        }
+    );
+
+
+    openPanel = null;
+
+}
+
+
+function togglePanel(name) {
+
+    if (!optionPanels[name]) {
+        return;
+    }
+
+
+    if (openPanel === name) {
+
+        closeAllPanels();
+
+        return;
+
+    }
+
+
+    closeAllPanels();
+
+
+    optionPanels[name].classList.remove(
+        "hidden"
+    );
+
+
+    optionButtons[name].classList.add(
+        "active"
+    );
+
+
+    openPanel = name;
+
+}
+
+
+document.getElementById(
+    "dataMenuButton"
+).onclick =
+    function() {
+
+        togglePanel("data");
+
+    };
+
+
+document.getElementById(
+    "cardsMenuButton"
+).onclick =
+    function() {
+
+        togglePanel("cards");
+
+    };
+
+
+document.getElementById(
+    "tagsMenuButton"
+).onclick =
+    function() {
+
+        togglePanel("tags");
+
+    };
+
+
+document.getElementById(
+    "reviewMenuButton"
+).onclick =
+    function() {
+
+        togglePanel("review");
+
+    };
+
+
+document.getElementById(
+    "infoMenuButton"
+).onclick =
+    function() {
+
+        updateStudyInfo();
+
+        updateProgressDisplay();
+
+        togglePanel("info");
+
+    };
+
+
+// ========================================
+// DARK MODE
+// ========================================
+
+function loadTheme() {
+
+    const savedTheme =
+        localStorage.getItem(
+            "flashcardTheme"
+        );
+
+
+    // Dark mode is the default.
+
+    if (savedTheme === "light") {
+
+        document.body.classList.add(
+            "light-mode"
+        );
+
+    } else {
+
+        document.body.classList.remove(
+            "light-mode"
+        );
+
+    }
+
+
+    updateThemeButton();
+
+}
+
+
+function updateThemeButton() {
+
+    const button =
+        document.getElementById(
+            "darkModeButton"
+        );
+
+
+    if (
+        document.body.classList.contains(
+            "light-mode"
+        )
+    ) {
+
+        button.textContent = "☀️";
+
+        button.title =
+            "Switch to dark mode";
+
+    } else {
+
+        button.textContent = "🌙";
+
+        button.title =
+            "Switch to light mode";
+
+    }
+
+}
+
+
+document.getElementById(
+    "darkModeButton"
+).onclick =
+    function() {
+
+        document.body.classList.toggle(
+            "light-mode"
+        );
+
+
+        if (
+            document.body.classList.contains(
+                "light-mode"
+            )
+        ) {
+
+            localStorage.setItem(
+                "flashcardTheme",
+                "light"
+            );
+
+        } else {
+
+            localStorage.setItem(
+                "flashcardTheme",
+                "dark"
+            );
+
+        }
+
+
+        updateThemeButton();
+
+    };
+
+
+loadTheme();
 
 // ========================================
 // START
