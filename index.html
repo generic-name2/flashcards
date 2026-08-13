@@ -18,16 +18,20 @@
 
 <body>
 
-    <!-- ========================= -->
-    <!-- VERSION -->
-    <!-- ========================= -->
+    <div class="due-counter"
+         id="dueCounter">
+        Due 0
+    </div>
+
 
     <div class="version">
-        v0.9.0
+        v0.9.0 📚fix
     </div>
 
 
     <main class="container">
+
+        <h1>My Flashcards</h1>
 
 
         <!-- ========================= -->
@@ -70,37 +74,32 @@
             <div id="reviewButtons"
                  class="review-buttons hidden">
 
-                <button id="mistakeButton"
-                        class="mistake-button">
+                <button id="mistakeButton">
                     ❌ Mistake
                 </button>
 
-                <button id="hardButton"
-                        class="hard-button">
+                <button id="hardButton">
                     😕 Hard
                 </button>
 
-                <button id="goodButton"
-                        class="good-button">
+                <button id="goodButton">
                     🙂 Good
                 </button>
 
-                <button id="easyButton"
-                        class="easy-button">
+                <button id="easyButton">
                     😄 Easy
                 </button>
 
                 <button id="skipButton"
-                        class="skip-button hidden">
+                        class="hidden">
                     ⏭️ Skip
                 </button>
 
             </div>
 
 
-            <!-- Normally hidden -->
             <div id="progressInfo"
-                 class="progress-info hidden">
+                 class="progress-info">
             </div>
 
         </div>
@@ -114,17 +113,15 @@
 
             <button id="dataMenuButton"
                     class="option-button"
-                    title="Data">
+                    title="Import / Export">
                 💾
             </button>
 
-
             <button id="cardsMenuButton"
                     class="option-button"
-                    title="Cards">
-                ✍️
+                    title="Manage Cards">
+                📝
             </button>
-
 
             <button id="tagsMenuButton"
                     class="option-button"
@@ -132,13 +129,11 @@
                 🏷️
             </button>
 
-
             <button id="reviewMenuButton"
                     class="option-button"
-                    title="Review">
+                    title="Review All">
                 📚
             </button>
-
 
             <button id="infoMenuButton"
                     class="option-button"
@@ -146,10 +141,9 @@
                 ℹ️
             </button>
 
-
             <button id="darkModeButton"
                     class="option-button"
-                    title="Toggle dark mode">
+                    title="Switch to light mode">
                 🌙
             </button>
 
@@ -164,12 +158,7 @@
              class="option-panel hidden">
 
             <div class="panel-title">
-                💾 Data
-            </div>
-
-
-            <div class="panel-description">
-                Back up your cards and study progress.
+                My Data
             </div>
 
 
@@ -189,7 +178,7 @@
             >
 
 
-            <hr>
+            <br>
 
 
             <button id="exportProgressButton">
@@ -211,14 +200,14 @@
 
 
         <!-- ========================= -->
-        <!-- CARD MANAGEMENT -->
+        <!-- CARD MANAGEMENT PANEL -->
         <!-- ========================= -->
 
         <div id="cardsPanel"
              class="option-panel hidden">
 
             <div class="panel-title">
-                ✍️ Cards
+                Card Editor
             </div>
 
 
@@ -310,14 +299,14 @@
 
 
         <!-- ========================= -->
-        <!-- TAG FILTERS -->
+        <!-- TAG PANEL -->
         <!-- ========================= -->
 
         <div id="tagsPanel"
              class="option-panel hidden">
 
             <div class="panel-title">
-                🏷️ Categories
+                Categories
             </div>
 
 
@@ -344,20 +333,20 @@
 
 
         <!-- ========================= -->
-        <!-- REVIEW -->
+        <!-- REVIEW PANEL -->
         <!-- ========================= -->
 
         <div id="reviewPanel"
              class="option-panel hidden">
 
             <div class="panel-title">
-                📚 Review
+                Review
             </div>
 
 
-            <div class="panel-description">
-                Review cards regardless of their scheduled due time.
-            </div>
+            <button id="studyModeButton">
+                🧠 Study Due
+            </button>
 
 
             <button id="reviewAllButton">
@@ -365,34 +354,29 @@
             </button>
 
 
-            <label class="new-card-option">
+            <label class="include-new">
 
                 <input
                     type="checkbox"
-                    id="includeNewCardsCheckbox"
+                    id="includeNewCheckbox"
                 >
 
-                Include new cards
+                Include New cards in Review All
 
             </label>
-
-
-            <div id="reviewStatus"
-                 class="review-status">
-            </div>
 
         </div>
 
 
         <!-- ========================= -->
-        <!-- INFORMATION -->
+        <!-- INFORMATION PANEL -->
         <!-- ========================= -->
 
         <div id="infoPanel"
              class="option-panel hidden">
 
             <div class="panel-title">
-                ℹ️ Information
+                Study Information
             </div>
 
 
@@ -401,21 +385,19 @@
             </div>
 
 
-            <hr>
+            <div class="debug-panel">
 
+                <div class="debug-title">
+                    Developer Information
+                </div>
 
-            <div class="debug-title">
-                Developer Information
-            </div>
+                <div id="debugInfo">
+                    Loading...
+                </div>
 
-
-            <div id="debugInfo"
-                 class="debug-info">
-                Loading...
             </div>
 
         </div>
-
 
     </main>
 
