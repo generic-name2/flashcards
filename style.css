@@ -1,15 +1,77 @@
-body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+/* ================================= */
+/* BASE */
+/* ================================= */
 
-    background: #f2f2f7;
+:root {
 
-    margin: 0;
+    --background: #17191c;
 
-    padding: 20px;
+    --surface: #22252a;
+
+    --surface-light: #2b2f35;
+
+    --surface-hover: #343941;
+
+    --text: #e1e4e8;
+
+    --text-secondary: #aeb4bc;
+
+    --border: #3a3f47;
+
+    --accent: #5da9e9;
+
+    --accent-dark: #397db5;
+
+    --green: #55c878;
+
+    --yellow: #e4b84a;
+
+    --orange: #e28b4f;
+
+    --red: #df6262;
+
+    --shadow:
+        0 4px 18px rgba(0, 0, 0, 0.35);
 }
 
 
+* {
+    box-sizing: border-box;
+}
+
+
+body {
+
+    font-family:
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        sans-serif;
+
+    background:
+        var(--background);
+
+    color:
+        var(--text);
+
+    margin: 0;
+
+    padding: 25px 15px;
+
+    min-height: 100vh;
+
+    transition:
+        background 0.25s,
+        color 0.25s;
+}
+
+
+/* ================================= */
+/* CONTAINER */
+/* ================================= */
+
 .container {
+
     max-width: 600px;
 
     margin: auto;
@@ -18,58 +80,425 @@ body {
 }
 
 
-h1 {
-    margin-bottom: 25px;
+/* ================================= */
+/* VERSION */
+/* ================================= */
+
+.version {
+
+    position: fixed;
+
+    top: 8px;
+
+    right: 10px;
+
+    font-size: 12px;
+
+    color:
+        var(--text-secondary);
+
+    opacity: 0.65;
+
+    z-index: 10;
 }
 
 
-/* ============================= */
-/* PANELS */
-/* ============================= */
+/* ================================= */
+/* FLASHCARD */
+/* ================================= */
 
-.data-panel,
-.editor-panel,
-.filters {
-    background: white;
+.card {
 
-    border-radius: 16px;
+    background:
+        var(--surface);
 
-    padding: 15px;
+    border:
+        1px solid var(--border);
 
-    margin-bottom: 20px;
+    border-radius: 22px;
+
+    padding: 45px 20px 30px;
+
+    margin-top: 15px;
 
     box-shadow:
-        0 2px 8px rgba(0, 0, 0, 0.08);
+        var(--shadow);
+}
+
+
+.word {
+
+    font-size: 38px;
+
+    font-weight: 700;
+
+    margin-bottom: 30px;
+
+    color:
+        var(--text);
+
+    word-wrap: break-word;
+}
+
+
+.sentence {
+
+    font-size: 22px;
+
+    line-height: 1.45;
+
+    margin-top: 20px;
+
+    margin-bottom: 25px;
+
+    color:
+        var(--text-secondary);
+}
+
+
+.answer {
+
+    font-size: 31px;
+
+    font-weight: 700;
+
+    margin-top: 25px;
+
+    color:
+        var(--accent);
+}
+
+
+.sentence-translation {
+
+    font-size: 22px;
+
+    font-style: italic;
+
+    line-height: 1.45;
+
+    margin-top: 20px;
+
+    margin-bottom: 30px;
+
+    color:
+        var(--text-secondary);
+}
+
+
+/* ================================= */
+/* CARD CONTROL BUTTONS */
+/* ================================= */
+
+button {
+
+    font-size: 17px;
+
+    padding: 12px 18px;
+
+    margin: 5px;
+
+    border: none;
+
+    border-radius: 12px;
+
+    cursor: pointer;
+
+    color:
+        var(--text);
+
+    background:
+        var(--surface-light);
+
+    transition:
+        background 0.15s,
+        transform 0.1s;
+}
+
+
+button:active {
+
+    transform:
+        scale(0.97);
+}
+
+
+button:hover {
+
+    background:
+        var(--surface-hover);
+}
+
+
+#sentenceButton,
+#answerButton {
+
+    background:
+        var(--surface-light);
+
+    border:
+        1px solid var(--border);
+}
+
+
+#sentenceButton:hover,
+#answerButton:hover {
+
+    background:
+        var(--surface-hover);
+}
+
+
+/* ================================= */
+/* REVIEW BUTTONS */
+/* ================================= */
+
+.review-buttons {
+
+    margin-top: 30px;
+
+    padding-top: 20px;
+
+    border-top:
+        1px solid var(--border);
+}
+
+
+.review-buttons button {
+
+    min-width: 105px;
+}
+
+
+.mistake-button {
+
+    background:
+        #63383b;
+}
+
+
+.mistake-button:hover {
+
+    background:
+        #7b4145;
+}
+
+
+.hard-button {
+
+    background:
+        #66522d;
+}
+
+
+.hard-button:hover {
+
+    background:
+        #80652f;
+}
+
+
+.good-button {
+
+    background:
+        #285d42;
+}
+
+
+.good-button:hover {
+
+    background:
+        #347653;
+}
+
+
+.easy-button {
+
+    background:
+        #285878;
+}
+
+
+.easy-button:hover {
+
+    background:
+        #34739a;
+}
+
+
+.skip-button {
+
+    background:
+        #454b54;
+}
+
+
+/* ================================= */
+/* OPTION BAR */
+/* ================================= */
+
+.option-bar {
+
+    display: flex;
+
+    justify-content: center;
+
+    align-items: center;
+
+    gap: 7px;
+
+    margin:
+        14px auto 10px;
+
+    padding: 5px;
+}
+
+
+.option-button {
+
+    width: 46px;
+
+    height: 44px;
+
+    padding: 0;
+
+    margin: 0;
+
+    border-radius: 13px;
+
+    font-size: 21px;
+
+    background:
+        var(--surface);
+
+    border:
+        1px solid var(--border);
+
+    box-shadow:
+        0 2px 6px rgba(0,0,0,0.2);
+}
+
+
+.option-button:hover {
+
+    background:
+        var(--surface-hover);
+}
+
+
+.option-button.active {
+
+    background:
+        var(--accent-dark);
+
+    border-color:
+        var(--accent);
+}
+
+
+/* ================================= */
+/* PANELS */
+/* ================================= */
+
+.option-panel {
+
+    background:
+        var(--surface);
+
+    border:
+        1px solid var(--border);
+
+    border-radius: 17px;
+
+    padding: 18px;
+
+    margin:
+        10px 0 15px;
+
+    box-shadow:
+        var(--shadow);
+
+    text-align: center;
+
+    animation:
+        panelAppear 0.15s ease-out;
+}
+
+
+@keyframes panelAppear {
+
+    from {
+        opacity: 0;
+        transform: translateY(-4px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 
 .panel-title {
-    font-weight: bold;
+
+    font-size: 19px;
+
+    font-weight: 700;
 
     margin-bottom: 12px;
 }
 
 
-/* ============================= */
+.panel-description {
+
+    color:
+        var(--text-secondary);
+
+    font-size: 14px;
+
+    line-height: 1.5;
+
+    margin-bottom: 15px;
+}
+
+
+.option-panel hr {
+
+    border: 0;
+
+    border-top:
+        1px solid var(--border);
+
+    margin:
+        15px 0;
+}
+
+
+/* ================================= */
+/* DATA */
+/* ================================= */
+
+#dataPanel button {
+
+    margin:
+        5px 3px;
+}
+
+
+/* ================================= */
 /* EDITOR */
-/* ============================= */
+/* ================================= */
 
 .editor-panel {
     text-align: left;
 }
 
 
-.editor-panel > button {
-    display: block;
-
-    margin: 0 auto;
-}
-
-
 .editor-panel label {
+
     display: block;
 
-    font-weight: bold;
+    font-weight: 600;
 
     margin-top: 15px;
 
@@ -79,7 +508,6 @@ h1 {
 
 .editor-panel input,
 .editor-panel textarea {
-    box-sizing: border-box;
 
     width: 100%;
 
@@ -87,15 +515,33 @@ h1 {
 
     font-size: 17px;
 
-    border: 1px solid #ccc;
+    color:
+        var(--text);
+
+    background:
+        var(--surface-light);
+
+    border:
+        1px solid var(--border);
 
     border-radius: 10px;
 
     font-family: inherit;
+
+    outline: none;
+}
+
+
+.editor-panel input:focus,
+.editor-panel textarea:focus {
+
+    border-color:
+        var(--accent);
 }
 
 
 .editor-panel textarea {
+
     min-height: 75px;
 
     resize: vertical;
@@ -103,6 +549,7 @@ h1 {
 
 
 .editor-buttons {
+
     text-align: center;
 
     margin-top: 20px;
@@ -110,6 +557,7 @@ h1 {
 
 
 #editorMessage {
+
     text-align: center;
 
     margin-top: 10px;
@@ -118,17 +566,23 @@ h1 {
 }
 
 
-/* ============================= */
+/* ================================= */
 /* CARD MANAGER */
-/* ============================= */
+/* ================================= */
 
 #cardManager {
+
     margin-top: 20px;
 }
 
 
 .manager-card {
-    background: #f2f2f7;
+
+    background:
+        var(--surface-light);
+
+    border:
+        1px solid var(--border);
 
     border-radius: 12px;
 
@@ -141,6 +595,7 @@ h1 {
 
 
 .manager-word {
+
     font-size: 18px;
 
     font-weight: bold;
@@ -148,29 +603,37 @@ h1 {
 
 
 .manager-translation {
+
     margin-top: 3px;
+
+    color:
+        var(--text-secondary);
 }
 
 
 .manager-tags {
+
     font-size: 13px;
 
-    opacity: 0.7;
+    color:
+        var(--text-secondary);
 
     margin-top: 5px;
 }
 
 
 .manager-buttons {
+
     margin-top: 8px;
 }
 
 
-/* ============================= */
-/* FILTERS */
-/* ============================= */
+/* ================================= */
+/* TAGS */
+/* ================================= */
 
 .tag-buttons {
+
     display: flex;
 
     flex-wrap: wrap;
@@ -182,209 +645,261 @@ h1 {
 
 
 .tag-button {
+
     font-size: 15px;
 
-    padding: 9px 14px;
+    padding: 8px 13px;
 
     margin: 0;
 
     border-radius: 20px;
 
-    background: #e5e5ea;
+    background:
+        var(--surface-light);
+
+    border:
+        1px solid var(--border);
 }
 
 
 .tag-button.selected {
-    background: #007aff;
 
-    color: white;
+    background:
+        var(--accent);
+
+    color:
+        #101820;
+
+    border-color:
+        var(--accent);
 }
 
 
 .filter-mode {
-    margin-top: 12px;
 
-    text-align: center;
+    margin-top: 12px;
 }
 
 
 .mode-button {
+
     font-size: 14px;
 
     padding: 7px 15px;
-
-    margin: 2px;
-
-    border-radius: 10px;
-
-    background: #e5e5ea;
 }
 
 
 .mode-button.active {
-    background: #333;
 
-    color: white;
+    background:
+        var(--accent-dark);
+
+    color:
+        white;
 }
 
 
-/* ============================= */
-/* GENERAL BUTTONS */
-/* ============================= */
+/* ================================= */
+/* REVIEW PANEL */
+/* ================================= */
 
-button {
-    font-size: 18px;
+#reviewAllButton {
 
-    padding: 14px 20px;
+    background:
+        var(--accent-dark);
 
-    margin: 6px;
-
-    border: none;
-
-    border-radius: 12px;
-
-    cursor: pointer;
+    border:
+        1px solid var(--accent);
 }
 
 
-/* ============================= */
-/* CARD */
-/* ============================= */
+.new-card-option {
 
-.card {
-    background: white;
+    display: block;
 
-    border-radius: 20px;
+    margin-top: 14px;
 
-    padding: 40px 20px;
+    color:
+        var(--text-secondary);
 
-    box-shadow:
-        0 4px 15px rgba(0, 0, 0, 0.1);
+    font-size: 15px;
 }
 
 
-.word {
-    font-size: 36px;
+.new-card-option input {
 
-    font-weight: bold;
+    transform:
+        scale(1.2);
 
-    margin-bottom: 30px;
+    margin-right: 7px;
 }
 
 
-.sentence {
-    font-size: 22px;
+.review-status {
 
-    margin-top: 20px;
+    margin-top: 12px;
 
-    margin-bottom: 25px;
+    font-size: 14px;
+
+    color:
+        var(--text-secondary);
 }
 
 
-.answer {
-    font-size: 30px;
-
-    font-weight: bold;
-
-    margin-top: 25px;
-}
-
-
-.sentence-translation {
-    font-size: 22px;
-
-    font-style: italic;
-
-    margin-top: 20px;
-
-    margin-bottom: 30px;
-}
-
-
-/* ============================= */
-/* REVIEW */
-/* ============================= */
-
-.review-buttons {
-    margin-top: 30px;
-
-    padding-top: 20px;
-
-    border-top: 1px solid #ddd;
-}
-
-
-/* ============================= */
+/* ================================= */
 /* INFO */
-/* ============================= */
+/* ================================= */
 
 .study-info {
-    margin-top: 20px;
-
-    font-size: 15px;
-
-    line-height: 1.5;
-}
-
-
-.progress-info {
-    margin-top: 25px;
 
     font-size: 15px;
 
     line-height: 1.6;
-}
 
-
-/* ============================= */
-/* DEBUG */
-/* ============================= */
-
-.debug-panel {
-    margin-top: 25px;
-
-    padding: 15px;
-
-    background: #e5e5ea;
-
-    border-radius: 12px;
-
-    text-align: left;
-
-    font-size: 13px;
-
-    line-height: 1.6;
+    color:
+        var(--text-secondary);
 }
 
 
 .debug-title {
+
     font-weight: bold;
 
     margin-bottom: 8px;
 }
 
 
-/* ============================= */
-/* HIDDEN */
-/* ============================= */
+.debug-info {
 
-.hidden {
-    display: none !important;
+    text-align: left;
+
+    font-size: 13px;
+
+    line-height: 1.6;
+
+    color:
+        var(--text-secondary);
 }
 
 
-/* ============================= */
-/* VERSION */
-/* ============================= */
+/* ================================= */
+/* PROGRESS */
+/* ================================= */
 
-.version {
-    position: fixed;
+.progress-info {
 
-    top: 8px;
+    margin-top: 25px;
 
-    right: 10px;
+    font-size: 15px;
 
-    font-size: 12px;
+    line-height: 1.6;
 
-    opacity: 0.5;
+    color:
+        var(--text-secondary);
+}
+
+
+/* ================================= */
+/* HIDDEN */
+/* ================================= */
+
+.hidden {
+
+    display:
+        none !important;
+}
+
+
+/* ================================= */
+/* LIGHT MODE */
+/* ================================= */
+
+body.light-mode {
+
+    --background: #eef0f3;
+
+    --surface: #ffffff;
+
+    --surface-light: #e4e7eb;
+
+    --surface-hover: #d9dde2;
+
+    --text: #20242a;
+
+    --text-secondary: #626a74;
+
+    --border: #cdd2d8;
+
+    --accent: #1677c8;
+
+    --accent-dark: #1265aa;
+
+    --green: #287d4b;
+
+    --yellow: #a97916;
+
+    --orange: #b35f25;
+
+    --red: #a63c3c;
+}
+
+
+/* ================================= */
+/* SMALL SCREENS */
+/* ================================= */
+
+@media (max-width: 480px) {
+
+    body {
+        padding:
+            20px 10px;
+    }
+
+
+    .card {
+
+        padding:
+            40px 14px 25px;
+    }
+
+
+    .word {
+
+        font-size: 34px;
+    }
+
+
+    .sentence,
+    .sentence-translation {
+
+        font-size: 20px;
+    }
+
+
+    .answer {
+
+        font-size: 28px;
+    }
+
+
+    .review-buttons button {
+
+        min-width: 0;
+
+        padding:
+            11px 13px;
+
+        font-size: 15px;
+    }
+
+
+    .option-button {
+
+        width: 43px;
+
+        height: 42px;
+
+        font-size: 19px;
+    }
+
 }
