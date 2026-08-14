@@ -5,26 +5,36 @@
 
     <meta charset="UTF-8">
 
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
+    <title>My Flashcards</title>
 
-    <link rel="stylesheet"
-          href="style.css">
+    <link
+        rel="stylesheet"
+        href="style.css"
+    >
 
 </head>
 
 
 <body>
 
-    <div class="due-counter"
-         id="dueCounter">
-        Due 0
-    </div>
-
+    <!-- ========================= -->
+    <!-- VERSION / DUE COUNTER -->
+    <!-- ========================= -->
 
     <div class="version">
-        v0.9.0 no flashcards title
+        v0.10.0 modular
+    </div>
+
+    <div
+        id="dueCounter"
+        class="due-counter"
+    >
+        Due 0
     </div>
 
 
@@ -39,39 +49,88 @@
 
         <div class="card">
 
-            <div id="word"
-                 class="word">
+            <div
+                id="word"
+                class="word"
+            >
                 Loading...
             </div>
 
 
-            <div id="sentence"
-                 class="sentence hidden">
+            <!-- IMAGE -->
+
+            <img
+                id="cardImage"
+                class="card-image hidden"
+                alt=""
+            >
+
+
+            <!-- SENTENCE -->
+
+            <div
+                id="sentence"
+                class="sentence hidden"
+            >
             </div>
 
 
-            <div id="answer"
-                 class="answer hidden">
+            <!-- ANSWER -->
+
+            <div
+                id="answer"
+                class="answer hidden"
+            >
             </div>
 
 
-            <div id="sentenceTranslation"
-                 class="sentence-translation hidden">
+            <!-- SENTENCE TRANSLATION -->
+
+            <div
+                id="sentenceTranslation"
+                class="sentence-translation hidden"
+            >
             </div>
 
 
-            <button id="sentenceButton">
-                Show Sentence
-            </button>
+            <!-- AUDIO -->
+
+            <div
+                id="audioContainer"
+                class="audio-container hidden"
+            >
+
+                <button
+                    id="audioButton"
+                    class="media-button"
+                >
+                    🔊 Play Audio
+                </button>
+
+            </div>
 
 
-            <button id="answerButton">
-                Show Answer
-            </button>
+            <!-- CARD ACTIONS -->
+
+            <div class="card-actions">
+
+                <button id="sentenceButton">
+                    Show Sentence
+                </button>
+
+                <button id="answerButton">
+                    Show Answer
+                </button>
+
+            </div>
 
 
-            <div id="reviewButtons"
-                 class="review-buttons hidden">
+            <!-- REVIEW BUTTONS -->
+
+            <div
+                id="reviewButtons"
+                class="review-buttons hidden"
+            >
 
                 <button id="mistakeButton">
                     ❌ Mistake
@@ -89,16 +148,20 @@
                     😄 Easy
                 </button>
 
-                <button id="skipButton"
-                        class="hidden">
+                <button
+                    id="skipButton"
+                    class="hidden"
+                >
                     ⏭️ Skip
                 </button>
 
             </div>
 
 
-            <div id="progressInfo"
-                 class="progress-info">
+            <div
+                id="progressInfo"
+                class="progress-info"
+            >
             </div>
 
         </div>
@@ -110,39 +173,45 @@
 
         <div class="option-bar">
 
-            <button id="dataMenuButton"
-                    class="option-button"
-                    title="Import / Export">
+            <button
+                id="dataMenuButton"
+                title="Import / Export"
+            >
                 💾
             </button>
 
-            <button id="cardsMenuButton"
-                    class="option-button"
-                    title="Manage Cards">
-                📝
+            <button
+                id="cardsMenuButton"
+                title="Create / Edit / Delete"
+            >
+                ✍️
             </button>
 
-            <button id="tagsMenuButton"
-                    class="option-button"
-                    title="Tags">
+            <button
+                id="tagsMenuButton"
+                title="Tags"
+            >
                 🏷️
             </button>
 
-            <button id="reviewMenuButton"
-                    class="option-button"
-                    title="Review All">
+            <button
+                id="reviewMenuButton"
+                title="Review All"
+            >
                 📚
             </button>
 
-            <button id="infoMenuButton"
-                    class="option-button"
-                    title="Information">
+            <button
+                id="infoMenuButton"
+                title="Information"
+            >
                 ℹ️
             </button>
 
-            <button id="darkModeButton"
-                    class="option-button"
-                    title="Switch to light mode">
+            <button
+                id="darkModeButton"
+                title="Switch to light mode"
+            >
                 🌙
             </button>
 
@@ -153,8 +222,10 @@
         <!-- DATA PANEL -->
         <!-- ========================= -->
 
-        <div id="dataPanel"
-             class="option-panel hidden">
+        <div
+            id="dataPanel"
+            class="option-panel hidden"
+        >
 
             <div class="panel-title">
                 My Data
@@ -199,11 +270,13 @@
 
 
         <!-- ========================= -->
-        <!-- CARD MANAGEMENT PANEL -->
+        <!-- CARD EDITOR PANEL -->
         <!-- ========================= -->
 
-        <div id="cardsPanel"
-             class="option-panel hidden">
+        <div
+            id="cardsPanel"
+            class="option-panel editor-panel hidden"
+        >
 
             <div class="panel-title">
                 Card Editor
@@ -215,9 +288,10 @@
             </button>
 
 
-            <div id="editorForm"
-                 class="hidden">
-
+            <div
+                id="editorForm"
+                class="hidden"
+            >
 
                 <label>
                     Word
@@ -272,6 +346,28 @@
                 >
 
 
+                <label>
+                    Audio URL / file
+                </label>
+
+                <input
+                    id="audioInput"
+                    type="text"
+                    placeholder="audio/coffee-shop.mp3"
+                >
+
+
+                <label>
+                    Image URL / file
+                </label>
+
+                <input
+                    id="imageInput"
+                    type="text"
+                    placeholder="images/coffee-shop.jpg"
+                >
+
+
                 <div class="editor-buttons">
 
                     <button id="saveCardButton">
@@ -301,28 +397,36 @@
         <!-- TAG PANEL -->
         <!-- ========================= -->
 
-        <div id="tagsPanel"
-             class="option-panel hidden">
+        <div
+            id="tagsPanel"
+            class="option-panel filters hidden"
+        >
 
             <div class="panel-title">
                 Categories
             </div>
 
 
-            <div id="tagButtons"
-                 class="tag-buttons">
+            <div
+                id="tagButtons"
+                class="tag-buttons"
+            >
             </div>
 
 
             <div class="filter-mode">
 
-                <button id="orButton"
-                        class="mode-button active">
+                <button
+                    id="orButton"
+                    class="mode-button active"
+                >
                     OR
                 </button>
 
-                <button id="andButton"
-                        class="mode-button">
+                <button
+                    id="andButton"
+                    class="mode-button"
+                >
                     AND
                 </button>
 
@@ -335,8 +439,10 @@
         <!-- REVIEW PANEL -->
         <!-- ========================= -->
 
-        <div id="reviewPanel"
-             class="option-panel hidden">
+        <div
+            id="reviewPanel"
+            class="option-panel review-panel hidden"
+        >
 
             <div class="panel-title">
                 Review
@@ -353,14 +459,14 @@
             </button>
 
 
-            <label class="include-new">
+            <label class="include-new-label">
 
                 <input
                     type="checkbox"
                     id="includeNewCheckbox"
                 >
 
-                Include New cards in Review All
+                Include New cards
 
             </label>
 
@@ -371,16 +477,17 @@
         <!-- INFORMATION PANEL -->
         <!-- ========================= -->
 
-        <div id="infoPanel"
-             class="option-panel hidden">
+        <div
+            id="infoPanel"
+            class="option-panel info-panel hidden"
+        >
 
             <div class="panel-title">
-                Study Information
+                Information
             </div>
 
 
-            <div id="studyInfo"
-                 class="study-info">
+            <div id="studyInfo">
             </div>
 
 
@@ -398,10 +505,24 @@
 
         </div>
 
+
+        <!-- ========================= -->
+        <!-- NEXT DUE -->
+        <!-- ========================= -->
+
+        <div
+            id="nextDueInfo"
+            class="next-due-info"
+        >
+        </div>
+
     </main>
 
 
-    <script src="script.js"></script>
+    <script
+        type="module"
+        src="script.js"
+    ></script>
 
 </body>
 
