@@ -72,28 +72,75 @@ export function displayCard(card) {
 
 }
 
-
 export function updateDisplay() {
 
-    document.getElementById(
-        "sentence"
-    ).classList.toggle(
+    const sentence =
+        document.getElementById(
+            "sentence"
+        );
+
+
+    const answer =
+        document.getElementById(
+            "answer"
+        );
+
+
+    const sentenceTranslation =
+        document.getElementById(
+            "sentenceTranslation"
+        );
+
+
+    const sentenceButton =
+        document.getElementById(
+            "sentenceButton"
+        );
+
+
+    const answerButton =
+        document.getElementById(
+            "answerButton"
+        );
+
+
+    const reviewButtons =
+        document.getElementById(
+            "reviewButtons"
+        );
+
+
+    const skipButton =
+        document.getElementById(
+            "skipButton"
+        );
+
+
+    // ========================================
+    // SENTENCE
+    // ========================================
+
+    sentence.classList.toggle(
         "hidden",
         !sentenceVisible
     );
 
 
-    document.getElementById(
-        "answer"
-    ).classList.toggle(
+    // ========================================
+    // ANSWER
+    // ========================================
+
+    answer.classList.toggle(
         "hidden",
         !answerVisible
     );
 
 
-    document.getElementById(
-        "sentenceTranslation"
-    ).classList.toggle(
+    // ========================================
+    // SENTENCE TRANSLATION
+    // ========================================
+
+    sentenceTranslation.classList.toggle(
         "hidden",
         !(
             sentenceVisible &&
@@ -102,20 +149,90 @@ export function updateDisplay() {
     );
 
 
-    document.getElementById(
-        "sentenceButton"
-    ).textContent =
+    // ========================================
+    // SENTENCE BUTTON
+    // ========================================
+
+    sentenceButton.textContent =
         sentenceVisible
             ? "Hide Sentence"
             : "Show Sentence";
 
 
-    document.getElementById(
-        "answerButton"
-    ).textContent =
+    // ========================================
+    // ANSWER BUTTON
+    // ========================================
+
+    answerButton.textContent =
         answerVisible
             ? "Hide Answer"
             : "Show Answer";
+
+
+    // ========================================
+    // EVALUATION BUTTONS
+    // ========================================
+
+    /*
+     * Mistake / Hard / Good / Easy
+     *
+     * appear whenever the answer is visible.
+     *
+     * This works in both:
+     *
+     * Study Due
+     * Review All
+     */
+
+    if (
+        answerVisible
+    ) {
+
+        reviewButtons.classList.remove(
+            "hidden"
+        );
+
+    } else {
+
+        reviewButtons.classList.add(
+            "hidden"
+        );
+
+    }
+
+
+    // ========================================
+    // SKIP BUTTON
+    // ========================================
+
+    /*
+     * Skip is only available during
+     * Review All.
+     *
+     * The review mode is stored on
+     * window.studyMode.
+     */
+
+    if (skipButton) {
+
+        if (
+            answerVisible &&
+            window.studyMode === "review"
+        ) {
+
+            skipButton.classList.remove(
+                "hidden"
+            );
+
+        } else {
+
+            skipButton.classList.add(
+                "hidden"
+            );
+
+        }
+
+    }
 
 }
 
