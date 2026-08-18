@@ -217,9 +217,7 @@ export function updateDisplay() {
 
     if (
         answerVisible &&
-        document.body.classList.contains(
-            "review-mode"
-        )
+        studyMode === "review"
     ) {
 
         skipButton.classList.remove(
