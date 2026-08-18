@@ -215,22 +215,22 @@ export function updateDisplay() {
 
     if (skipButton) {
 
-        if (
-            answerVisible &&
-            window.studyMode === "review"
-        ) {
+    if (
+        answerVisible &&
+        document.body.classList.contains(
+            "review-mode"
+        )
+    ) {
 
-            skipButton.classList.remove(
-                "hidden"
-            );
+        skipButton.classList.remove(
+            "hidden"
+        );
 
-        } else {
+    } else {
 
-            skipButton.classList.add(
-                "hidden"
-            );
-
-        }
+        skipButton.classList.add(
+            "hidden"
+        );
 
     }
 
