@@ -72,7 +72,7 @@ export function displayCard(card) {
 
 }
 
-export function updateDisplay() {
+export function updateDisplay(studyMode) {
 
     const sentence =
         document.getElementById(
