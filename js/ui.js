@@ -1,3 +1,4 @@
+
 // ========================================
 // UI
 // ========================================
@@ -17,6 +18,10 @@ let sentenceVisible = false;
 let answerVisible = false;
 
 
+// ========================================
+// RESET CARD VISIBILITY
+// ========================================
+
 export function resetCardVisibility() {
 
     sentenceVisible = false;
@@ -25,6 +30,10 @@ export function resetCardVisibility() {
 
 }
 
+
+// ========================================
+// DISPLAY CARD
+// ========================================
 
 export function displayCard(card) {
 
@@ -55,6 +64,10 @@ export function displayCard(card) {
         card.sentence_translation || "";
 
 
+    // Media is optional.
+    // displayMedia() decides whether
+    // image/audio should appear.
+
     displayMedia(card);
 
 
@@ -64,6 +77,13 @@ export function displayCard(card) {
     updateProgressDisplay(card);
 
 
+    /*
+     * Evaluation buttons start hidden.
+     *
+     * They will appear when the answer
+     * is revealed.
+     */
+
     document.getElementById(
         "reviewButtons"
     ).classList.add(
@@ -72,7 +92,14 @@ export function displayCard(card) {
 
 }
 
-export function updateDisplay(studyMode) {
+
+// ========================================
+// DISPLAY STATE
+// ========================================
+
+export function updateDisplay(
+    studyMode = window.studyMode || "study"
+) {
 
     const sentence =
         document.getElementById(
@@ -184,9 +211,7 @@ export function updateDisplay(studyMode) {
      * Review All
      */
 
-    if (
-        answerVisible
-    ) {
+    if (answerVisible) {
 
         reviewButtons.classList.remove(
             "hidden"
@@ -209,31 +234,38 @@ export function updateDisplay(studyMode) {
      * Skip is only available during
      * Review All.
      *
-     * The review mode is stored on
-     * window.studyMode.
+     * It also requires the answer to
+     * be visible, just like the
+     * evaluation buttons.
      */
 
-if (skipButton) {
+    if (skipButton) {
 
-    if (
-        answerVisible &&
-        studyMode === "review"
-    ) {
+        if (
+            answerVisible &&
+            studyMode === "review"
+        ) {
 
-        skipButton.classList.remove(
-            "hidden"
-        );
+            skipButton.classList.remove(
+                "hidden"
+            );
 
-    } else {
+        } else {
 
-        skipButton.classList.add(
-            "hidden"
-        );
+            skipButton.classList.add(
+                "hidden"
+            );
+
+        }
 
     }
 
 }
 
+
+// ========================================
+// TOGGLE SENTENCE
+// ========================================
 
 export function toggleSentence() {
 
@@ -246,6 +278,10 @@ export function toggleSentence() {
 }
 
 
+// ========================================
+// TOGGLE ANSWER
+// ========================================
+
 export function toggleAnswer() {
 
     answerVisible =
@@ -256,6 +292,10 @@ export function toggleAnswer() {
 
 }
 
+
+// ========================================
+// PROGRESS DISPLAY
+// ========================================
 
 export function updateProgressDisplay(
     card
@@ -294,6 +334,10 @@ export function updateProgressDisplay(
         progress[card.id];
 
 
+    // ========================================
+    // NEW CARD
+    // ========================================
+
     if (!p) {
 
         info.innerHTML =
@@ -323,11 +367,19 @@ export function updateProgressDisplay(
     }
 
 
+    // ========================================
+    // STATUS
+    // ========================================
+
     const status =
         p.status === "graduated"
             ? "Graduated / Studying"
             : "Learning";
 
+
+    // ========================================
+    // USER INFO
+    // ========================================
 
     info.innerHTML =
 
@@ -347,6 +399,10 @@ export function updateProgressDisplay(
         formatDate(p.due) +
         "</strong>";
 
+
+    // ========================================
+    // DEVELOPER INFO
+    // ========================================
 
     debug.innerHTML =
 
@@ -373,6 +429,10 @@ export function updateProgressDisplay(
 
 }
 
+
+// ========================================
+// NOTHING DUE
+// ========================================
 
 export function showNothingDue(
     message
@@ -412,18 +472,49 @@ export function showNothingDue(
     );
 
 
-    document.getElementById(
-        "cardImage"
-    ).classList.add(
-        "hidden"
-    );
+    const cardImage =
+        document.getElementById(
+            "cardImage"
+        );
 
 
-    document.getElementById(
-        "audioContainer"
-    ).classList.add(
-        "hidden"
-    );
+    if (cardImage) {
+
+        cardImage.classList.add(
+            "hidden"
+        );
+
+    }
+
+
+    const audioContainer =
+        document.getElementById(
+            "audioContainer"
+        );
+
+
+    if (audioContainer) {
+
+        audioContainer.classList.add(
+            "hidden"
+        );
+
+    }
+
+
+    const skipButton =
+        document.getElementById(
+            "skipButton"
+        );
+
+
+    if (skipButton) {
+
+        skipButton.classList.add(
+            "hidden"
+        );
+
+    }
 
 
     document.getElementById(
@@ -431,3 +522,4 @@ export function showNothingDue(
     ).innerHTML = "";
 
 }
+
