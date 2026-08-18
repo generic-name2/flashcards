@@ -213,7 +213,7 @@ export function updateDisplay(studyMode) {
      * window.studyMode.
      */
 
-    if (skipButton) {
+if (skipButton) {
 
     if (
         answerVisible &&
