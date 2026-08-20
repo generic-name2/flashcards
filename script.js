@@ -180,7 +180,7 @@ function showNextCard() {
 
 
         displayCard(
-            currentCard;
+            currentCard,
             getStudyMode()
         );
 
@@ -220,7 +220,7 @@ function showNextCard() {
 
 
     displayCard(
-        currentCard;
+        currentCard,
         getStudyMode()
     );
 
