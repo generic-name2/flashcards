@@ -1,4 +1,3 @@
-
 // ========================================
 // UI
 // ========================================
@@ -16,6 +15,22 @@ import {
 let sentenceVisible = false;
 
 let answerVisible = false;
+
+let currentStudyMode = "study";
+
+
+// ========================================
+// SET STUDY MODE
+// ========================================
+
+export function setStudyMode(mode) {
+
+    currentStudyMode =
+        mode;
+
+    updateDisplay();
+
+}
 
 
 // ========================================
@@ -64,10 +79,6 @@ export function displayCard(card) {
         card.sentence_translation || "";
 
 
-    // Media is optional.
-    // displayMedia() decides whether
-    // image/audio should appear.
-
     displayMedia(card);
 
 
@@ -76,13 +87,6 @@ export function displayCard(card) {
 
     updateProgressDisplay(card);
 
-
-    /*
-     * Evaluation buttons start hidden.
-     *
-     * They will appear when the answer
-     * is revealed.
-     */
 
     document.getElementById(
         "reviewButtons"
@@ -97,9 +101,7 @@ export function displayCard(card) {
 // DISPLAY STATE
 // ========================================
 
-export function updateDisplay(
-    studyMode = window.studyMode || "study"
-) {
+export function updateDisplay() {
 
     const sentence =
         document.getElementById(
@@ -200,18 +202,9 @@ export function updateDisplay(
     // EVALUATION BUTTONS
     // ========================================
 
-    /*
-     * Mistake / Hard / Good / Easy
-     *
-     * appear whenever the answer is visible.
-     *
-     * This works in both:
-     *
-     * Study Due
-     * Review All
-     */
-
-    if (answerVisible) {
+    if (
+        answerVisible
+    ) {
 
         reviewButtons.classList.remove(
             "hidden"
@@ -227,36 +220,26 @@ export function updateDisplay(
 
 
     // ========================================
-    // SKIP BUTTON
+    // SKIP
     // ========================================
 
     /*
-     * Skip is only available during
-     * Review All.
+     * Skip is only available in Review All.
      *
-     * It also requires the answer to
-     * be visible, just like the
-     * evaluation buttons.
+     * It appears together with the
+     * evaluation buttons, after the
+     * answer has been revealed.
      */
 
     if (skipButton) {
 
-        if (
-            answerVisible &&
-            studyMode === "review"
-        ) {
-
-            skipButton.classList.remove(
-                "hidden"
-            );
-
-        } else {
-
-            skipButton.classList.add(
-                "hidden"
-            );
-
-        }
+        skipButton.classList.toggle(
+            "hidden",
+            !(
+                answerVisible &&
+                currentStudyMode === "review"
+            )
+        );
 
     }
 
@@ -334,10 +317,6 @@ export function updateProgressDisplay(
         progress[card.id];
 
 
-    // ========================================
-    // NEW CARD
-    // ========================================
-
     if (!p) {
 
         info.innerHTML =
@@ -367,19 +346,11 @@ export function updateProgressDisplay(
     }
 
 
-    // ========================================
-    // STATUS
-    // ========================================
-
     const status =
         p.status === "graduated"
             ? "Graduated / Studying"
             : "Learning";
 
-
-    // ========================================
-    // USER INFO
-    // ========================================
 
     info.innerHTML =
 
@@ -399,10 +370,6 @@ export function updateProgressDisplay(
         formatDate(p.due) +
         "</strong>";
 
-
-    // ========================================
-    // DEVELOPER INFO
-    // ========================================
 
     debug.innerHTML =
 
@@ -522,4 +489,3 @@ export function showNothingDue(
     ).innerHTML = "";
 
 }
-
