@@ -16,25 +16,9 @@ let sentenceVisible = false;
 
 let answerVisible = false;
 
-let currentStudyMode = "study";
-
 
 // ========================================
-// SET STUDY MODE
-// ========================================
-
-export function setStudyMode(mode) {
-
-    currentStudyMode =
-        mode;
-
-    updateDisplay();
-
-}
-
-
-// ========================================
-// RESET CARD VISIBILITY
+// RESET VISIBILITY
 // ========================================
 
 export function resetCardVisibility() {
@@ -50,7 +34,10 @@ export function resetCardVisibility() {
 // DISPLAY CARD
 // ========================================
 
-export function displayCard(card) {
+export function displayCard(
+    card,
+    studyMode
+) {
 
     resetCardVisibility();
 
@@ -82,26 +69,25 @@ export function displayCard(card) {
     displayMedia(card);
 
 
-    updateDisplay();
+    updateDisplay(
+        studyMode
+    );
 
 
-    updateProgressDisplay(card);
-
-
-    document.getElementById(
-        "reviewButtons"
-    ).classList.add(
-        "hidden"
+    updateProgressDisplay(
+        card
     );
 
 }
 
 
 // ========================================
-// DISPLAY STATE
+// UPDATE DISPLAY
 // ========================================
 
-export function updateDisplay() {
+export function updateDisplay(
+    studyMode
+) {
 
     const sentence =
         document.getElementById(
@@ -220,26 +206,29 @@ export function updateDisplay() {
 
 
     // ========================================
-    // SKIP
+    // SKIP BUTTON
     // ========================================
 
-    /*
-     * Skip is only available in Review All.
-     *
-     * It appears together with the
-     * evaluation buttons, after the
-     * answer has been revealed.
-     */
+    if (
+        skipButton
+    ) {
 
-    if (skipButton) {
+        if (
+            answerVisible &&
+            studyMode === "review"
+        ) {
 
-        skipButton.classList.toggle(
-            "hidden",
-            !(
-                answerVisible &&
-                currentStudyMode === "review"
-            )
-        );
+            skipButton.classList.remove(
+                "hidden"
+            );
+
+        } else {
+
+            skipButton.classList.add(
+                "hidden"
+            );
+
+        }
 
     }
 
@@ -439,49 +428,35 @@ export function showNothingDue(
     );
 
 
-    const cardImage =
-        document.getElementById(
-            "cardImage"
-        );
-
-
-    if (cardImage) {
-
-        cardImage.classList.add(
-            "hidden"
-        );
-
-    }
-
-
-    const audioContainer =
-        document.getElementById(
-            "audioContainer"
-        );
-
-
-    if (audioContainer) {
-
-        audioContainer.classList.add(
-            "hidden"
-        );
-
-    }
-
-
     const skipButton =
         document.getElementById(
             "skipButton"
         );
 
 
-    if (skipButton) {
+    if (
+        skipButton
+    ) {
 
         skipButton.classList.add(
             "hidden"
         );
 
     }
+
+
+    document.getElementById(
+        "cardImage"
+    ).classList.add(
+        "hidden"
+    );
+
+
+    document.getElementById(
+        "audioContainer"
+    ).classList.add(
+        "hidden"
+    );
 
 
     document.getElementById(
