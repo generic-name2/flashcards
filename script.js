@@ -180,7 +180,8 @@ function showNextCard() {
 
 
         displayCard(
-            currentCard
+            currentCard;
+            getStudyMode()
         );
 
 
@@ -219,7 +220,8 @@ function showNextCard() {
 
 
     displayCard(
-        currentCard
+        currentCard;
+        getStudyMode()
     );
 
 
@@ -1311,7 +1313,39 @@ function setupMenus() {
 
 }
 
+// ========================================
+// UPDATE REVIEW BUTTONS
+// ========================================
+function updateModeButtons() {
 
+    const studyButton =
+        document.getElementById(
+            "studyModeButton"
+        );
+
+
+    const reviewButton =
+        document.getElementById(
+            "reviewAllButton"
+        );
+
+
+    const mode =
+        getStudyMode();
+
+
+    studyButton.classList.toggle(
+        "active",
+        mode === "study"
+    );
+
+
+    reviewButton.classList.toggle(
+        "active",
+        mode === "review"
+    );
+
+}
 // ========================================
 // REVIEW CONTROLS
 // ========================================
@@ -1327,6 +1361,8 @@ function setupReviewButtons() {
                 "study"
             );
 
+            updateModeButtons();
+            
             resetReviewCycle();
 
             showNextCard();
@@ -1343,6 +1379,8 @@ function setupReviewButtons() {
                 "review"
             );
 
+            updateModeButtons();
+            
             resetReviewCycle();
 
             showNextCard();
@@ -1372,8 +1410,10 @@ function setupReviewButtons() {
             showNextCard();
 
         };
+    updateModeButtons();
 
 }
+
 
 
 // ========================================
